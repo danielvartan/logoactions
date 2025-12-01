@@ -50,10 +50,10 @@ on:
   push:
     branches: [main, master]
 
-name: NetLogo-check
+name: "NetLogo Check"
 
 jobs:
-  NetLogo-check:
+  netlogo-check:
     runs-on: ubuntu-latest
     permissions: read-all
     steps:
