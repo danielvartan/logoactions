@@ -2,7 +2,7 @@ on:
   push:
     branches: [main, master]
 
-name: 'Test setup-netlogo'
+name: 'setup-netlogo test'
 permissions: read-all
 
 jobs:
@@ -25,5 +25,5 @@ jobs:
           cache: ${{ matrix.cache }}
 
       - name: Test NetLogo Installation
-        run: NetLogo_Console --version
+        run: netlogo --version
         shell: bash

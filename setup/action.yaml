@@ -24,7 +24,7 @@ runs:
       id: netlogo-cache
       uses: actions/cache@v4
       with:
-        path: '/opt/NetLogo ${{inputs.version}}'
+        path: '/opt/NetLogo-${{inputs.version}}'
         key: netlogo-${{inputs.version}}-${{inputs.architecture}}
 
     - name: Download NetLogo
@@ -33,24 +33,44 @@ runs:
         NETLOGO_TAR="NetLogo-${{inputs.version}}-${{inputs.architecture}}.tgz"
         wget \
           "https://ccl.northwestern.edu/netlogo/${{inputs.version}}/${NETLOGO_TAR}" \
-          -O "/tmp/${NETLOGO_TAR}"
+          -O "/tmp/${NETLOGO_TAR}" \
+          --quiet
       shell: bash
 
     - name: Install NetLogo
       if: inputs.cache != 'true' || steps.netlogo-cache.outputs.cache-hit != 'true'
       run: |
         NETLOGO_TAR="NetLogo-${{inputs.version}}-${{inputs.architecture}}.tgz"
-        sudo tar -xvzf "/tmp/${NETLOGO_TAR}" -C "/opt/"
+        sudo tar -xzf "/tmp/${NETLOGO_TAR}" -C "/opt/"
+      shell: bash
+
+    - name: Remove Spaces from NetLogo Directory Name
+      if: inputs.cache != 'true' || steps.netlogo-cache.outputs.cache-hit != 'true'
+      run: |
+        sudo mv \
+          "/opt/NetLogo ${{inputs.version}}" \
+          "/opt/NetLogo-${{inputs.version}}"
       shell: bash
 
     - name: Set Variables and PATH
       run: |
-        NETLOGO_HOME="/opt/NetLogo ${{inputs.version}}"
+        NETLOGO_HOME="/opt/NetLogo-${{inputs.version}}"
         echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "$GITHUB_ENV"
         echo "NETLOGO_CONSOLE=${NETLOGO_HOME}/NetLogo_Console" >> "$GITHUB_ENV"
         echo "${NETLOGO_HOME}" >> "$GITHUB_PATH"
       shell: bash
 
+    - name: Create Symbolic Links
+      run: |
+        NETLOGO_HOME="/opt/NetLogo-${{inputs.version}}"
+        sudo ln -sf \
+          "${NETLOGO_HOME}/NetLogo_Console" \
+          /usr/local/bin/NetLogo
+        sudo ln -sf \
+          "${NETLOGO_HOME}/NetLogo_Console" \
+          /usr/local/bin/netlogo
+      shell: bash
+
     - name: Test NetLogo
-      run: NetLogo_Console --version
+      run: netlogo --version
       shell: bash
