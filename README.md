@@ -61,7 +61,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup NetLogo
-        uses: danielvartan/netlogo-actions/setup@v1
+        uses: danielvartan/netlogo-actions/setup-netlogo@v1
 
       - name: Run Experiment
         run: |
@@ -87,7 +87,7 @@ steps:
     uses: actions/checkout@v4
 
   - name: Setup NetLogo 6.4.0
-    uses: danielvartan/netlogo-actions/setup@v1
+    uses: danielvartan/netlogo-actions/setup-netlogo@v1
     with:
       version: "6.4.0"
       architecture: "64"
