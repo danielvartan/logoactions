@@ -82,11 +82,11 @@ runs:
         NETLOGO_HOME="/opt/NetLogo-${{inputs.version}}"
 
         sudo ln -sf \
-          "${NETLOGO_HOME}/NetLogo_Console" \
+          "${NETLOGO_HOME}/bin/NetLogo" \
           /usr/local/bin/NetLogo
 
         sudo ln -sf \
-          "${NETLOGO_HOME}/NetLogo_Console" \
+          "${NETLOGO_HOME}/bin/NetLogo" \
           /usr/local/bin/netlogo
       shell: bash
 

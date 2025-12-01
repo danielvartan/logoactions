@@ -9,11 +9,11 @@
 
 ## Overview
 
-This repository provides [GitHub Actions](https://github.com/features/actions) workflows for running [NetLogo](https://ccl.northwestern.edu/netlogo/) simulations in CI/CD environments. You can use it to automate testing and execution of NetLogo models within GitHub workflows.
+This repository provides [GitHub Actions](https://github.com/features/actions) workflows for running [NetLogo](https://ccl.northwestern.edu/netlogo/) simulations. You can use it to automate testing and execution of NetLogo models within GitHub workflows.
 
-Currently, this repository includes only the [`setup-netlogo`](setup/action.yaml) action, which installs NetLogo on the runner machine. See the [`examples`](examples) directory for usage examples in your workflows.
+Currently, the repository includes only the [`setup-netlogo`](setup/action.yaml) action, which installs NetLogo on the runner machine. See the [`examples`](examples) directory for workflow examples. You can also see `setup-netlogo` in action by checking out this repository's [workflow runs](https://github.com/danielvartan/netlogo-actions/actions) page.
 
-This action can also be integrated with [Quarto](https://quarto.org/) using the [`logolink`](https://github.com/danielvartan/logolink) R package for more advanced workflows. See [`netlogo-check`](https://github.com/danielvartan/netlogo-check) for an example of such integration.
+This action can also be integrated with [Quarto](https://quarto.org/) using the [`logolink`](https://danielvartan.github.io/logolink/) R package for more advanced workflows. See [`netlogo-check`](https://github.com/danielvartan/netlogo-check) for an example of such integration.
 
 > If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/danielvartan/netlogo-actions)](https://github.com/danielvartan/netlogo-actions/)
 
@@ -35,7 +35,7 @@ This action sets up a NetLogo environment for use in GitHub Actions by:
 
 ### Inputs
 
-The action accepts the following inputs:
+The following inputs are supported:
 
 - `version`: The NetLogo version to use (e.g., `"6.4.0"`). See available versions [here](https://ccl.northwestern.edu/netlogo/oldversions.shtml) (default: `"7.0.2"`).
 - `architecture`: The NetLogo system architecture to use (`"32"` or `"64"`) (default: `"64"`).
@@ -77,7 +77,7 @@ jobs:
           cat /tmp/output.csv
 ```
 
-### With a Specific Version
+### Differing Versions
 
 You can also specify a particular NetLogo version to install:
 
@@ -90,43 +90,12 @@ steps:
     uses: danielvartan/netlogo-actions/setup@v1
     with:
       version: "6.4.0"
-
-  - name: Run Experiment
-    run: netlogo --help
-```
-
-### Matrix Usage
-
-The action also allows you to run workflows across multiple NetLogo versions using a matrix strategy.
-
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        netlogo: ["6.4.0", "7.0.2"]
-    name: NetLogo ${{ matrix.netlogo }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup NetLogo
-        uses: danielvartan/netlogo-actions/setup@v1
-        with:
-          version: ${{ matrix.netlogo }}
-
-      - name: Run Experiment
-        run: |
-          netlogo \
-            --headless \
-            --model my-model.nlogox \
-            --experiment test-experiment
+      architecture: "64"
 ```
 
 ## Supported Platforms
 
-All actions support only Linux runners (e.g., `ubuntu-latest`). We do not plan to support other operating systems at this time.
+All actions support only **Linux** runners (e.g., `ubuntu-latest`). We do not plan to support other operating systems at this time.
 
 ## License
 
