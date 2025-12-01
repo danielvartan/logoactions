@@ -9,9 +9,11 @@
 
 ## Overview
 
-This repository provides [GitHub Actions](https://github.com/features/actions) workflows for running [NetLogo](https://ccl.northwestern.edu/netlogo/) simulations in CI/CD environments. You can use it to automate testing and execution of NetLogo models within your GitHub workflows.
+This repository provides [GitHub Actions](https://github.com/features/actions) workflows for running [NetLogo](https://ccl.northwestern.edu/netlogo/) simulations in CI/CD environments. You can use it to automate testing and execution of NetLogo models within GitHub workflows.
 
-At the moment, it includes only the `setup-netlogo` action, which installs NetLogo on the runner machine. Click [here](https://github.com/danielvartan/netlogo-check) to see a complete example of using this action to test NetLogo models.
+Currently, this repository includes only the [`setup-netlogo`](setup/action.yaml) action, which installs NetLogo on the runner machine. See the [`examples`](examples) directory for usage examples in your workflows.
+
+This action can also be integrated with [Quarto](https://quarto.org/) using the [`logolink`](https://github.com/danielvartan/logolink) R package for more advanced workflows. See [`netlogo-check`](https://github.com/danielvartan/netlogo-check) for an example of such integration.
 
 > If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/danielvartan/netlogo-actions)](https://github.com/danielvartan/netlogo-actions/)
 
@@ -35,7 +37,7 @@ This action sets up a NetLogo environment for use in GitHub Actions by:
 
 The action accepts the following inputs:
 
-- `version`: The NetLogo version to use (e.g., `"6.4.0"`). See the available versions [here](https://ccl.northwestern.edu/netlogo/oldversions.shtml) (default: `"7.0.2"`).
+- `version`: The NetLogo version to use (e.g., `"6.4.0"`). See available versions [here](https://ccl.northwestern.edu/netlogo/oldversions.shtml) (default: `"7.0.2"`).
 - `architecture`: The NetLogo system architecture to use (`"32"` or `"64"`) (default: `"64"`).
 - `cache`: Whether NetLogo should be cached across runs or not (default:`"true"`).
 
@@ -44,19 +46,35 @@ The action accepts the following inputs:
 A basic workflow to set up NetLogo and run a model might look like this:
 
 ```yaml
-steps:
-  - name: Checkout Repository
-    uses: actions/checkout@v4
+on:
+  push:
+    branches: [main, master]
 
-  - name: Setup NetLogo
-    uses: danielvartan/netlogo-actions/setup@v1
+name: NetLogo-check
 
-  - name: Run NetLogo Model
-    run: |
-      NetLogo_Console \
-        --model my-model.nlogox \
-        --experiment my-experiment \
-        --table output.csv
+jobs:
+  NetLogo-check:
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup NetLogo
+        uses: danielvartan/netlogo-actions/setup@v1
+
+      - name: Run Experiment
+        run: |
+          MODEL_PATH="$NETLOGO_HOME/models/Sample Models/Biology"
+          MODEL_FILE="Wolf Sheep Predation.nlogox"
+
+          netlogo \
+            --headless \
+            --model "$MODEL_PATH/$MODEL_FILE" \
+            --experiment "Wolf Sheep Crossing" \
+            --table /tmp/output.csv
+
+          cat /tmp/output.csv
 ```
 
 ### With a Specific Version
@@ -73,8 +91,8 @@ steps:
     with:
       version: "6.4.0"
 
-  - name: Test Installation
-    run: NetLogo_Console --version
+  - name: Run Experiment
+    run: netlogo --help
 ```
 
 ### Matrix Usage
@@ -98,9 +116,10 @@ jobs:
         with:
           version: ${{ matrix.netlogo }}
 
-      - name: Run Tests
+      - name: Run Experiment
         run: |
-          NetLogo_Console \
+          netlogo \
+            --headless \
             --model my-model.nlogox \
             --experiment test-experiment
 ```
