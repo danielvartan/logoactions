@@ -40,4 +40,6 @@ jobs:
             --model "$MODEL_PATH/$MODEL_FILE" \
             --experiment "Wolf Sheep Crossing" \
             --table /tmp/output.csv
+
+          cat /tmp/output.csv
         shell: bash
