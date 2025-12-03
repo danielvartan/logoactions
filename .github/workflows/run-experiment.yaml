@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     name: Run Experiments
     steps:
-      - name: Check out repository code
+      - name: Check out repository
         uses: actions/checkout@v4
 
       - name: Set up NetLogo
-        uses: ./setup-netlogo # danielvartan/netlogo-actions/setup-netlogo@v1
+        uses: danielvartan/netlogo-actions/setup-netlogo@v1
 
       - name: Create artifacts directory
         run: |

@@ -1,6 +1,6 @@
 ## Overview
 
-This document presents the output of a [GitHub Action](https://github.com/features/actions) workflow that sets up NetLogo and runs experiments using [Quarto](https://quarto.org/) and the [`logolink`](https://danielvartan.github.io/logolink/) R package.
+This document presents the output of a [GitHub Action](https://docs.github.com/en/actions) workflow that sets up NetLogo and runs experiments using [Quarto](https://quarto.org/) and the [`logolink`](https://danielvartan.github.io/logolink/) R package.
 
 See the repository [README](https://github.com/danielvartan/netlogo-actions#netlogo-actions) for more details.
 

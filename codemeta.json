@@ -5,7 +5,7 @@
   "dateCreated": "2025-12-01",
   "applicationCategory": "Continuous Integration",
   "applicationSubCategory": "GitHub Actions",
-  "name": "NetLogo-Actions: GitHub Actions for the NetLogo Community",
+  "name": "NetLogo-Actions: GitHub Actions for the NetLogo community",
   "author": [
     {
       "@type": "Person",
@@ -59,18 +59,8 @@
   "license": "https://www.gnu.org/licenses/gpl-3.0",
   "codeRepository": "https://github.com/danielvartan/netlogo-actions",
   "issueTracker": "https://github.com/danielvartan/netlogo-actions/issues",
-  "programmingLanguage": {
-    "@type": "ComputerLanguage",
-    "name": "NetLogo",
-    "version": "7.0.0",
-    "url": "https://www.netlogo.org"
-  },
-  "runtimePlatform": "NetLogo version 7.0.0 (2025)",
-  "operatingSystem": [
-    "Linux",
-    "macOS",
-    "Windows"
-  ],
+  "runtimePlatform": "GitHub Actions",
+  "operatingSystem": "Linux",
   "developmentStatus": "active",
   "readme": "https://github.com/danielvartan/netlogo-actions/blob/main/README.md",
   "releaseNotes": "https://github.com/danielvartan/netlogo-actions/blob/main/NEWS.md",
