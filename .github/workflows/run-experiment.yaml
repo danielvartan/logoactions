@@ -14,7 +14,12 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup NetLogo
-        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+        uses: ./setup-netlogo # danielvartan/netlogo-actions/setup-netlogo@v1
+
+      - name: Create Artifacts Directory
+        run: |
+          # Create Artifacts Directory
+          mkdir -p /tmp/artifacts
 
       - name: Run Experiment 1
         run: |

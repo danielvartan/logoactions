@@ -22,7 +22,7 @@ jobs:
             libfontconfig1-dev pandoc
 
       - name: Setup NetLogo
-        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+        uses: ./setup-netlogo # danielvartan/netlogo-actions/setup-netlogo@v1
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2

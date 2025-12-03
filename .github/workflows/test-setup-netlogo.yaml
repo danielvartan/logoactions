@@ -41,7 +41,7 @@ jobs:
             --headless \
             --model "${model_path}/${model_file}" \
             --experiment "Wolf Sheep Crossing" \
-            --table /tmp/output.csv
+            --table /tmp/table-output.csv
 
-          cat /tmp/output.csv
+          cat /tmp/table-output.csv
         shell: bash
