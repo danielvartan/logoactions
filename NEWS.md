@@ -1,7 +1,7 @@
 # v1.1.0 (2025-12-03)
 
 - `[setup-netlogo]` now supports `'release'` as input for the `version` argument, which downloads the latest NetLogo release.
-- `[setup-netlogo]` now downloads NetLogo from the [NetLogo GitHub releases](https://github.com/NetLogo/NetLogo/releases) instead of ccl.northwestern.edu, improving reliability and speed.
+- `[setup-netlogo]` now downloads NetLogo from the [NetLogo GitHub releases](https://github.com/NetLogo/NetLogo/releases) instead of [ccl.northwestern.edu](https://ccl.northwestern.edu/netlogo/oldversions.shtml), improving reliability and speed.
 - `[setup-netlogo]` now supports only NetLogo versions 6.4.0 and above. This limitation is due to the fact that older versions are not available on the NetLogo GitHub releases page.
 - `[setup-netlogo]` now follows the [Google Shell Style Guide](https://google.github.io/styleguide/shellguide.html).
 - `[setup-netlogo]` now has more informative and less verbose log output.
