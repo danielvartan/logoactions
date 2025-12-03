@@ -1,28 +1,66 @@
-name: 'setup-netlogo'
-author: 'Daniel Vartanian'
-description: 'Action to setup the NetLogo environment (Linux runners only)'
-branding:
-  icon: 'box'
-  color: 'settings'
+name: setup-netlogo
+author: Daniel Vartanian
+description: |
+  This GitHub Action setup the NetLogo environment in a Linux runner by
+  downloading and installing the specified version of NetLogo. It also
+  configures environment variables and updates the system PATH to include
+  the NetLogo installation directory. Only NetLogo versions greater than 6.4.0
+  are supported.
 inputs:
   version:
     description: |
-      The NetLogo version to use (e.g., '7.0.2'). You can find them at
-      <https://github.com/NetLogo/NetLogo/releases>. Use 'release' to
-      always get the latest stable release.
-    required: true
-    default: 'release'
+      A character string indicating the NetLogo version to use
+      (e.g., `"7.0.2"`). Available versions can be found at
+      <https://github.com/NetLogo/NetLogo/releases>. Do not include
+      the "v" prefix. Use `"release"` to get the latest stable release.
+    default: "release"
   architecture:
-    description: 'The NetLogo system architecture to use ("32" or "64").'
-    required: true
-    default: '64'
+    description: |
+      A character string indicating the NetLogo system architecture to use.
+      Options are `"32"` or `"64"`.
+    default: "64"
   cache:
-    description: 'Whether NetLogo should be cached across runs or not.'
-    required: true
-    default: 'true'
+    description: |
+      A quoted boolean indicating whether the NetLogo installation should be
+      cached across runs.
+    default: "true"
 runs:
-  using: "composite"
+  using: composite
   steps:
+    - name: Validate Arguments
+      run: |
+        if [[ ! "${{inputs.version}}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]] && \
+           [[ "${{inputs.version}}" != "release" ]]; then
+          echo \
+            "Error: Invalid version format" \
+            "(\"${{inputs.version}}\")." \
+            "Use semantic versioning (e.g., \"7.0.2\") or use" \
+            "\"release\" to get the latest stable release."
+
+          exit 1
+        fi
+
+        if [[ "${{inputs.architecture}}" != "32" ]] && \
+           [[ "${{inputs.architecture}}" != "64" ]]; then
+          echo \
+            "Error: Invalid architecture" \
+            "(\"${{inputs.architecture}}\")." \
+            "Valid options are \"32\" or \"64\"."
+
+          exit 1
+        fi
+
+        if [[ "${{inputs.cache}}" != "true" ]] && \
+           [[ "${{inputs.cache}}" != "false" ]]; then
+          echo \
+            "Error: Invalid cache option" \
+            "(\"${{inputs.cache}}\")." \
+            "Valid options are \"true\" or \"false\"."
+
+          exit 1
+        fi
+      shell: bash
+
     - name: Install Dependencies
       run: |
         sudo apt-get update
@@ -30,82 +68,105 @@ runs:
       shell: bash
 
     - name: Get NetLogo Version
-      id: get-netlogo-version
+      id: netlogo-version
       run: |
-        if [ "${{inputs.version}}" = "release" ]; then
+        if [[ "${{inputs.version}}" == "release" ]]; then
           NETLOGO_VERSION=$( \
             curl -s \
-            https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
-            | grep -oP '"tag_name":\s*"\Kv?[0-9]+\.[0-9]+(\.[0-9]+)?' \
-            | tr -d 'v' \
+              https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
+              | grep -oP '"tag_name":\s*"\Kv?[0-9]+\.[0-9]+(\.[0-9]+)?' \
+              | tr -d 'v' \
           )
 
-          if [ -z "${NETLOGO_VERSION}" ]; then
-            echo "Error: Could not fetch latest NetLogo version from GitHub API"
+          if [[ -z "${NETLOGO_VERSION}" ]]; then
+            echo \
+              "Error: Could not fetch latest NetLogo version from GitHub API."
+
             exit 1
           fi
         else
           NETLOGO_VERSION="${{inputs.version}}"
         fi
 
-        echo "NETLOGO_VERSION=${NETLOGO_VERSION}" >> "$GITHUB_ENV"
-        echo "version=${NETLOGO_VERSION}" >> "$GITHUB_OUTPUT"
+        echo "version=${NETLOGO_VERSION}" >> "${GITHUB_OUTPUT}"
+        echo "NETLOGO_VERSION=${NETLOGO_VERSION}" >> "${GITHUB_ENV}"
       shell: bash
 
     - name: Restore NetLogo Cache
-      if: inputs.cache == 'true'
+      if: inputs.cache == "true"
       id: netlogo-cache
       uses: actions/cache@v4
       with:
-        path: "/opt/NetLogo-${{ steps.get-netlogo-version.outputs.version }}"
-        key: "netlogo-${{ steps.get-netlogo-version.outputs.version }}-${{ inputs.architecture }}"
+        path: "/opt/NetLogo-${{steps.netlogo-version.outputs.version}}"
+        key: "netlogo-${{steps.netlogo-version.outputs.version}}-${{inputs.architecture}}"
 
     - name: Download NetLogo
-      if: inputs.cache != 'true' || steps.netlogo-cache.outputs.cache-hit != 'true'
+      if: inputs.cache != "true" || steps.netlogo-cache.outputs.cache-hit != "true"
       run: |
-        URL=$( \
-          curl -s \
-          "https://api.github.com/repos/NetLogo/NetLogo/releases/tags/v${NETLOGO_VERSION}" \
-          | grep -oP '"browser_download_url":\s*"\K[^"]+'"${{ inputs.architecture }}"'\.tgz' \
+        release_api_url=$(
+          printf "%s%s" \
+            "https://api.github.com/repos/NetLogo/NetLogo/releases/tags/" \
+            "v${NETLOGO_VERSION}" \
         )
 
-        if [ -z "$URL" ]; then
-          echo "Error: Could not find download URL for NetLogo" \
-            "${NETLOGO_VERSION} (${{ inputs.architecture }}-bit)"
+        download_url_regex=$(
+          printf "%s%s" \
+            '\"browser_download_url\":\s*\"\K[^"]+' \
+            "${{inputs.architecture}}\.tgz" \
+        )
+
+        download_url=$( \
+          curl -s "${release_api_url}" \
+          | grep -oP "${download_url_regex}" \
+          | head -1 \
+        )
+
+        if [[ -z "${download_url}" ]]; then
+          echo \
+            "Error: Could not find download URL for NetLogo" \
+            "${NETLOGO_VERSION} (${{inputs.architecture}}-bit)."
+
           exit 1
         fi
 
-        NETLOGO_TAR="/tmp/$(basename "$URL")"
+        NETLOGO_TAR="/tmp/$(basename "${download_url}")"
 
-        wget "$URL" -qO "$NETLOGO_TAR" || { echo "Error: Download failed"; exit 1; }
+        wget \
+          "${download_url}" -qO "${NETLOGO_TAR}" || \
+          { echo "Error: Download failed"; exit 1; }
 
-        echo "NETLOGO_TAR=${NETLOGO_TAR}" >> "$GITHUB_ENV"
+        echo "NETLOGO_TAR=${NETLOGO_TAR}" >> "${GITHUB_ENV}"
       shell: bash
 
     - name: Install NetLogo
-      if: inputs.cache != 'true' || steps.netlogo-cache.outputs.cache-hit != 'true'
+      if: inputs.cache != "true" || steps.netlogo-cache.outputs.cache-hit != "true"
       run: |
         NETLOGO_HOME="/opt/NetLogo-${NETLOGO_VERSION}"
 
-        CONSOLE_PATH=$( \
+        netlogo_console_path=$( \
           tar -tzf "${NETLOGO_TAR}" \
           | grep "_Console$" \
           | head -1 \
         )
 
-        if [ -z "${CONSOLE_PATH}" ]; then
-          echo "Error: NetLogo_Console not found in tarball"
+        if [[ -z "${netlogo_console_path}" ]]; then
+          echo "Error: NetLogo_Console not found in tarball."
           exit 1
         fi
 
-        EXTRACTED_DIR=$(dirname "${CONSOLE_PATH}")
+        netlogo_console_dir=$(dirname "${netlogo_console_path}")
 
         sudo mkdir -p "${NETLOGO_HOME}"
 
-        if [ "${EXTRACTED_DIR}" = "." ]; then
-          sudo tar -xzf "${NETLOGO_TAR}" -C "${NETLOGO_HOME}"
+        if [[ "${netlogo_console_dir}" == "." ]]; then
+          sudo tar \
+            -xzf "${NETLOGO_TAR}" \
+            -C "${NETLOGO_HOME}"
         else
-          sudo tar -xzf "${NETLOGO_TAR}" -C "${NETLOGO_HOME}" --strip-components=1
+          sudo tar \
+            -xzf "${NETLOGO_TAR}" \
+            -C "${NETLOGO_HOME}" \
+            --strip-components=1
         fi
 
         rm -f "${NETLOGO_TAR}"
@@ -115,16 +176,14 @@ runs:
       run: |
         NETLOGO_HOME="/opt/NetLogo-${NETLOGO_VERSION}"
 
-        echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "$GITHUB_ENV"
-        echo "NETLOGO_CONSOLE=${NETLOGO_HOME}/NetLogo_Console" >> "$GITHUB_ENV"
+        echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
+        echo "NETLOGO_CONSOLE=${NETLOGO_HOME}/NetLogo_Console" >> "${GITHUB_ENV}"
 
-        echo "${NETLOGO_HOME}" >> "$GITHUB_PATH"
+        echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
       shell: bash
 
     - name: Create Symbolic Links
       run: |
-        NETLOGO_HOME="/opt/NetLogo-${NETLOGO_VERSION}"
-
         sudo ln -sf \
           "${NETLOGO_HOME}/bin/NetLogo" \
           /usr/local/bin/NetLogo
@@ -134,6 +193,6 @@ runs:
           /usr/local/bin/netlogo
       shell: bash
 
-    - name: Test NetLogo
-      run: netlogo --help
+    - name: Test NetLogo Installation
+      run: netlogo --headless --version
       shell: bash

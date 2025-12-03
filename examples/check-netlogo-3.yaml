@@ -2,22 +2,22 @@ on:
   push:
     branches: [main, master]
 
-name: "setup-netlogo: Integrating with Quarto and logolink"
+name: "Check Netlogo with Quarto and logolink"
 
 jobs:
-  netlogo-check:
+  check-netlogo:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pages: write
     steps:
-      - name: Check out repository code
+      - name: Check Out Repository Code
         uses: actions/checkout@v4
 
       - name: Update Ubuntu packages
         run: sudo apt-get update
 
-      - name: Install Ubuntu packages
+      - name: Install Dependencies
         run: |
           sudo apt-get install -y \
             libfontconfig1-dev pandoc
@@ -28,19 +28,30 @@ jobs:
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
 
+      - name: Check If renv is Initialized
+        id: renv-check
+        run: |
+          if [ -f "renv.lock" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Install and Initialize renv
+        if: steps.renv-check.outputs.exists == "false"
         run: |
           install.packages("renv")
           renv::init()
         shell: Rscript {0}
 
       - name: Install logolink
+        if: steps.renv-check.outputs.exists == "false"
         run: |
           renv::install("danielvartan/logolink")
           renv::snapshot()
         shell: Rscript {0}
 
-      - name: Set up renv
+      - name: Set Up renv
         uses: r-lib/actions/setup-renv@v2
 
       - name: Set up Quarto
@@ -50,7 +61,7 @@ jobs:
         run: quarto render
 
       - name: Deploy to GitHub Pages
-        if: github.event_name != 'pull_request'
+        if: github.event_name != "pull_request"
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           clean: false

@@ -9,9 +9,9 @@ project:
   output-dir: docs
 
 title: "netlogo-actions: GitHub Actions for the NetLogo Community"
-author: "Daniel Vartanian"
+author: Daniel Vartanian
 date: today
-date-format: "long"
+date-format: long
 keyword: >
   NetLogo. GitHub. GitHub Actions. Test Suites. Test Units. Test Automation.
   R Programming. Quarto. logolink. CI-CD. Simulations. Agent-Based Modeling.

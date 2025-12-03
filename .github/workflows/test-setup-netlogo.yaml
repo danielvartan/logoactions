@@ -2,8 +2,7 @@ on:
   push:
     branches: [main, master]
 
-name: "setup-netlogo-test"
-description: "Test workflow for setup-netlogo action."
+name: "Test setup-netlogo"
 
 permissions: read-all
 
@@ -12,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["7.0.0", "7.0.2"] # 6.4.0
+        version: ["6.4.0", "7.0.2"]
         cache: ["true", "false"]
     name: NetLogo ${{ matrix.version }} (cache=${{ matrix.cache }})
     steps:
-      - name: Check out repository code
+      - name: Check Out Repository Code
         uses: actions/checkout@v4
 
       - name: Setup NetLogo
@@ -28,18 +27,18 @@ jobs:
 
       - name: Test NetLogo Installation
         run: |
-          if [ "${{ matrix.version }}" = "6.4.0" ]; then
-            MODEL_EXT="nlogo"
+          if [[ "${{ matrix.version }}" =~ ^([0-6]+) ]]; then
+            model_ext="nlogo"
           else
-            MODEL_EXT="nlogox"
+            model_ext="nlogox"
           fi
 
-          MODEL_PATH="$NETLOGO_HOME/models/Sample Models/Biology"
-          MODEL_FILE="Wolf Sheep Predation.$MODEL_EXT"
+          model_path="${NETLOGO_HOME}/models/Sample Models/Biology"
+          model_file="Wolf Sheep Predation.${model_ext}"
 
           netlogo \
             --headless \
-            --model "$MODEL_PATH/$MODEL_FILE" \
+            --model "${model_path}/${model_file}" \
             --experiment "Wolf Sheep Crossing" \
             --table /tmp/output.csv
 

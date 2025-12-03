@@ -30,6 +30,7 @@ This action sets up a NetLogo environment for use in GitHub Actions by:
 - Setting the following environment variables:
   - `NETLOGO_HOME`: Path to the NetLogo installation directory.
   - `NETLOGO_CONSOLE`: Path to the NetLogo console executable.
+  - `NETLOGO_VERSION`: The installed NetLogo version.
 - Adding `NETLOGO_HOME` to `PATH`.
 - Creating symlinks for easy access to NetLogo command-line tools:
   - `netlogo`
