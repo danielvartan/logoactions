@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "netlogo-actions: GitHub Actions for the NetLogo Community"
+title: "NetLogo-Actions: GitHub Actions for the NetLogo Community"
 message: >-
   If you use this software, please cite it using the metadata from this file.
 type: software
@@ -10,11 +10,11 @@ authors:
     affiliation: University of São Paulo
     orcid: "https://orcid.org/0000-0001-7782-759X"
 abstract: >-
-  netlogo-actions is a collection of GitHub Actions designed to facilitate the
+  NetLogo-Actions is a collection of GitHub Actions designed to facilitate the
   setup and execution of NetLogo models within GitHub workflows. These actions
   enable researchers and developers to automate the installation of NetLogo,
-  run simulations, and integrate NetLogo with other tools and platforms, such as
-  Quarto and logolink.
+  run and test simulations, and integrate NetLogo with other tools and
+  platforms, such as Quarto and logolink.
 keywords:
   - Agent-Based Modeling
   - Individual Based Modeling
