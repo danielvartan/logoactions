@@ -1,0 +1,159 @@
+name: check-netlogo
+author: Daniel Vartanian
+description: |
+  This GitHub Action scans the repository for NetLogo models and runs all
+  BehaviorSpace experiments found in those models using the NetLogo headless
+  API. It requires the repository to be checked out (via `actions/checkout@v*`)
+  and NetLogo to be available on the runner (via
+  `danielvartan/netlogo-actions/setup-netlogo@v*`). The action automatically
+  selects the appropriate file extensions based on the installed NetLogo
+  version: `.nlogo` and `.nlogo3d` for NetLogo 6 and earlier, or `.nlogox` and
+  `.nlogox3d` for NetLogo 7 and later. Experiment results are uploaded as
+  artifacts by default.
+inputs:
+  ignore:
+    description: |
+      A single-quoted (!important) character string specifying paths to exclude
+      when searching for NetLogo models. Supports glob patterns (e.g.,
+      `'models/old/**'`). Multiple paths can be separated by commas (e.g.,
+      `'models/old/**, docs/**'`).
+    default: ''
+  artifacts:
+    description: |
+      A single-quoted (!important) boolean value indicating whether to upload
+      the experiment results as artifacts.
+    default: 'true'
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      run: |
+        # Install dependencies
+        sudo apt-get update -qq
+        sudo apt-get install -y -qq ripgrep
+      shell: bash
+    - name: Create artifacts directory
+      run: |
+        # Create artifacts directory
+        mkdir -p /tmp/check-netlogo
+      shell: bash
+    - name: Search for NetLogo models
+      id: netlogo-models
+      run: |
+        # Search for NetLogo models
+        ignore_patterns="${{ inputs.ignore }}"
+
+        netlogo_version=$(netlogo --headless --version | awk '{print $2}')
+
+        if [[ "${netlogo_version}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+          major_version="${BASH_REMATCH[1]}"
+
+          if (( major_version < 7 )); then
+            find_cmd=( \
+              find . -type f \( \
+              -name "*.nlogo" \
+              -o -name "*.nlogo3d" \
+              \) \
+            )
+          else
+            find_cmd=( \
+              find . -type f \( \
+              -name "*.nlogox" \
+              -o -name "*.nlogox3d" \
+              \) \
+            )
+          fi
+        else
+          echo "Error: Unable to determine NetLogo version."
+
+          exit 1
+        fi
+
+        if [[ -n "${ignore_patterns}" ]]; then
+          IFS=',' read -ra patterns <<< "${ignore_patterns}"
+
+          exclude_args=()
+          for pattern in "${patterns[@]}"; do
+            pattern=$(echo "${pattern}" | xargs)
+            [[ -n "${pattern}" ]] && exclude_args+=(-not -path "./${pattern}")
+          done
+
+          netlogo_models=$("${find_cmd[@]}" "${exclude_args[@]}")
+        else
+          netlogo_models=$("${find_cmd[@]}")
+        fi
+
+        if [[ -z "${netlogo_models}" ]]; then
+          echo "No NetLogo models found."
+          echo "found=false" >> "${GITHUB_OUTPUT}"
+        else
+          echo "found=true" >> "${GITHUB_OUTPUT}"
+          echo "models<<EOF" >> "${GITHUB_OUTPUT}"
+          echo "${netlogo_models}" >> "${GITHUB_OUTPUT}"
+          echo "EOF" >> "${GITHUB_OUTPUT}"
+        fi
+      shell: bash
+    - name: Run experiments
+      id: netlogo-experiments
+      if: steps.netlogo-models.outputs.found == 'true'
+      run: |
+        # Run experiments
+        readarray -t models <<< "${{ steps.netlogo-models.outputs.models }}"
+
+        for model_file in "${models[@]}"; do
+          [[ -z "${model_file}" ]] && continue
+
+          readarray -t experiments < <(
+            rg -oP '(?<=<experiment name=")[^"]+' "${model_file}"
+          )
+
+          for experiment_name in "${experiments[@]}"; do
+            [[ -z "${experiment_name}" ]] && continue
+
+            echo \
+              "Running ${model_file}" \
+              "with experiment '${experiment_name}'."
+
+            sanitized_name=$( \
+              echo "${experiment_name}" \
+              | sed 's/[^a-zA-Z0-9_-]/_/g' \
+            )
+
+            output_file=$( \
+              printf "%s/%s_%s.csv" \
+                "/tmp/check-netlogo" \
+                "$(basename "${model_file}" | sed 's/\.[^.]*$//')" \
+                "${sanitized_name}" \
+            )
+
+            netlogo \
+              --headless \
+              --model "${model_file}" \
+              --experiment "${experiment_name}" \
+              --table "${output_file}"
+          done
+        done
+
+        shopt -s nullglob
+        files=(/tmp/check-netlogo/*.csv)
+        if [[ ${#files[@]} -gt 0 ]]; then
+          echo "found=true" >> "${GITHUB_OUTPUT}"
+
+          echo "Experiment results generated successfully."
+        else
+          echo "found=false" >> "${GITHUB_OUTPUT}"
+
+          echo "No experiment was found in the NetLogo models."
+        fi
+      shell: bash
+    - name: Upload artifacts
+      if: |
+        steps.netlogo-models.outputs.found == 'true' &&
+        steps.netlogo-experiments.outputs.found == 'true' &&
+        inputs.artifacts != 'false'
+      uses: actions/upload-artifact@v4
+      with:
+        name: experiments-output
+        path: '/tmp/check-netlogo/'
+        retention-days: 90
+        if-no-files-found: warn

@@ -22,6 +22,7 @@
   "cSpell.words": [
     "behaviorsearch",
     "Behaviorspace",
+    "compgen",
     "danielvartan",
     "dplyr",
     "errorbar",
@@ -41,8 +42,10 @@
     "netlogo",
     "nlogo",
     "nlogox",
+    "nullglob",
     "orcid",
     "pandoc",
+    "readarray",
     "renv",
     "Rscript",
     "shopt",

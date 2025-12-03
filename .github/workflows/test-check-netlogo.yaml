@@ -1,0 +1,21 @@
+on:
+  push:
+    branches: [main, master]
+
+name: "check-netlogo" # Do not change!
+
+permissions: read-all
+
+jobs:
+  test-check-netlogo:
+    runs-on: ubuntu-latest
+    name: Check NetLogo Models
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up NetLogo
+        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+
+      - name: Check NetLogo models
+        uses: ./check-netlogo

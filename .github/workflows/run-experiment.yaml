@@ -106,5 +106,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: experiments-output
-          path: /tmp/artifacts/
+          path: '/tmp/artifacts/'
           retention-days: 90

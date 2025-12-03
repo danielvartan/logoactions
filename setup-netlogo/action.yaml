@@ -109,7 +109,9 @@ runs:
         key: "netlogo-${{steps.netlogo-version.outputs.version}}-${{inputs.architecture}}"
 
     - name: Download NetLogo
-      if: inputs.cache != 'true' || steps.netlogo-cache.outputs.cache-hit != 'true'
+      if: |
+        inputs.cache != 'true' ||
+        steps.netlogo-cache.outputs.cache-hit != 'true'
       id: netlogo-download
       run: |
         # Download NetLogo
@@ -149,7 +151,9 @@ runs:
       shell: bash
 
     - name: Install NetLogo
-      if: inputs.cache != 'true' || steps.netlogo-cache.outputs.cache-hit != 'true'
+      if: |
+        inputs.cache != 'true' ||
+        steps.netlogo-cache.outputs.cache-hit != 'true'
       run: |
         # Install NetLogo
         NETLOGO_HOME="/opt/NetLogo-${NETLOGO_VERSION}"

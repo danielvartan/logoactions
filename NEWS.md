@@ -1,3 +1,7 @@
+# v1.1.0 (development version)
+
+- `[check-netlogo]` action was added. This action runs all Behaviorspace experiments define in NetLogo models present in a repository and uploads the results as artifacts.
+
 # v1.1.0 (2025-12-03)
 
 - `[setup-netlogo]` now supports `'release'` as input for the `version` argument, which downloads the latest NetLogo release.

@@ -3,6 +3,7 @@
 <!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![setup-netlogo](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-setup-netlogo.yaml/badge.svg)](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-setup-netlogo.yaml)
+[![check-netlogo](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-check-netlogo.yaml/badge.svg)](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-check-netlogo.yaml)
 [![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Contributor Covenant 3.0 Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://www.contributor-covenant.org/version/3/0/code_of_conduct/)
 <!-- badges: end -->
@@ -11,9 +12,12 @@
 
 `NetLogo-Actions` is a collection of [GitHub Actions](https://docs.github.com/en/actions) designed to facilitate the setup and execution of [NetLogo](https://ccl.northwestern.edu/netlogo/) models within [GitHub workflows](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows). These actions enable researchers and developers to automate the installation of NetLogo, run and test simulations, and integrate NetLogo with other tools and platforms, such as [Quarto](https://quarto.org/), [`logolink`](https://danielvartan.github.io/logolink/) and [`pyNetLogo`](https://pynetlogo.readthedocs.io/en/latest/).
 
-Currently, the repository includes only the [`setup-netlogo`](setup/action.yaml) action, which installs NetLogo on the runner machine.
+Currently, the repository includes:
 
-Along with `setup-netlogo`, a series of [workflows examples](.github/workflows) are provided to demonstrate how to use the action in practice. See the [Usage](#usage) section below for more details.
+- [`setup-netlogo`](#setup-netlogo-reference): Installs NetLogo on the runner machine.
+- [`check-netlogo`](#check-netlogo-reference): Runs all BehaviorSpace experiments in a repository's NetLogo models to verify they execute without errors.
+
+Along with these actions, a series of [workflows examples](.github/workflows) are provided to demonstrate how to use the action in practice. See the [Usage](#usage) section below for more details.
 
 > If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/danielvartan/netlogo-actions)](https://github.com/danielvartan/netlogo-actions/)
 
@@ -21,13 +25,45 @@ Along with `setup-netlogo`, a series of [workflows examples](.github/workflows) 
 
 ## Usage
 
-### Running BehaviorSpace Experiments
+### Check NetLogo Models
+
+This workflow shows how to use the `check-netlogo` action to automatically verify that all BehaviorSpace experiments in a repository's NetLogo models run without errors. This is particularly useful for continuous integration (CI) workflows, ensuring that any changes to the models or experiments do not introduce issues.
+
+You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions). The complete workflow file is available [here](.github/workflows/check-netlogo.yaml).
+
+Below is a basic workflow configuration.
+
+```yaml
+on:
+  push:
+    branches: [main, master]
+
+name: "NetLogo Check"
+
+permissions: read-all
+
+jobs:
+  check-netlogo:
+    runs-on: ubuntu-latest
+    name: Check NetLogo Models
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up NetLogo
+        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+
+      - name: Check NetLogo models
+        uses: danielvartan/netlogo-actions/check-netlogo@v1
+```
+
+### Run BehaviorSpace Experiments
 
 This workflow shows how to set up NetLogo and run [BehaviorSpace](https://docs.netlogo.org/behaviorspace.html) experiments in headless mode. Experiment results are saved as [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) files and uploaded as artifacts for later retrieval. This approach is useful for automating simulation runs, conducting parameter sweeps, or integrating NetLogo experiments into data analysis pipelines.
 
 You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions). The complete workflow file is available [here](.github/workflows/run-experiment.yaml).
 
-Below is a sample workflow configuration.
+Below is a basic workflow configuration.
 
 ```yaml
 on:
@@ -74,17 +110,17 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: experiment-output
-          path: /tmp/artifacts/
+          path: '/tmp/artifacts/'
           retention-days: 90
 ```
 
-### Running Experiments with Quarto and `logolink`
+### Run Experiments with Quarto and `logolink`
 
 This workflow shows how to combine NetLogo with [Quarto](https://quarto.org/) and the [`logolink`](https://danielvartan.github.io/logolink/) R package to run experiments and generate reproducible reports. It installs all required dependencies, renders the Quarto document, and deploys the output to [GitHub Pages](https://docs.github.com/en/pages). An example report is available [here](https://danielvartan.github.io/netlogo-actions/).
 
 You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions). The complete workflow file is available [here](.github/workflows/run-logolink.yaml).
 
-Below is a sample workflow configuration.
+Below is a basic workflow configuration.
 
 ```yaml
 on:
@@ -165,9 +201,53 @@ jobs:
 
 For information on workflow RAM, storage, and time limits, refer to the GitHub Actions [usage limits](https://docs.github.com/en/actions/administering-github-actions/usage-limits-billing-and-administration) page.
 
+## `check-netlogo` Reference
+
+The `check-netlogo` action automates the verification of BehaviorSpace experiments across all NetLogo models in a repository. It ensures experiments run correctly in headless mode, making it ideal for CI pipelines that need to catch model errors early.
+
+### Installation
+
+The action can be integrated into your GitHub Actions workflow simply by adding the following step:
+
+```yaml
+- name: Check NetLogo Models
+  uses: danielvartan/netlogo-actions/check-netlogo@v1
+```
+
+Note that you must first [check out](https://github.com/actions/checkout) the repository and set up NetLogo using the [`setup-netlogo`](#setup-netlogo-reference) action before using `check-netlogo`.
+
+### Functionality
+
+The action test NetLogo models by performing the following tasks:
+
+1. Searches the repository for NetLogo model files (`.nlogo`, `.nlogo3d`, `.nlogox`, `.nlogox3d`), excluding any paths specified in the `ignore` input.
+2. Identifies all BehaviorSpace experiments defined within each model.
+3. Executes each experiment in headless mode using NetLogo's command-line interface.
+4. Saves a table output of each experiment as an artifact (optional).
+
+Note that models with `.nlogo` and `.nlogo3d` extensions are skipped when using NetLogo 7 or higher, as these formats are deprecated in recent versions. Similarly, `.nlogox` and `.nlogox3d` files are skipped when using NetLogo 6 or lower, as these formats are not supported in earlier versions.
+
+You can view `check-netlogo` in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions).
+
+### Inputs
+
+The following inputs are supported:
+
+- `ignore`: A single-quoted (!important) character string specifying paths to exclude when searching for NetLogo models. Supports glob patterns (e.g., `'models/old/**'`). Multiple paths can be separated by commas (e.g., `'models/old/**, docs/**'`). No paths are ignored by default (default: `''`).
+- `artifacts`: A single-quoted (!important) boolean value indicating whether to save experiment output tables as artifacts (default: `'true'`).
+
+Use the `with` keyword to change the default values. Example:
+
+```yaml
+- name: Check NetLogo models
+  uses: danielvartan/netlogo-actions/check-netlogo@v1
+  with:
+    ignore: 'models/old/**, docs/**'
+```
+
 ## `setup-netlogo` Reference
 
-The `setup-netlogo` action is what allows the examples shown above to run NetLogo models in GitHub Actions workflows. You can easily customize the action to fit your needs.
+The `setup-netlogo` action is what allows all the examples shown above to run NetLogo models in GitHub Actions workflows. You can easily customize the action to fit your needs.
 
 ### Installation
 
@@ -180,16 +260,18 @@ The action can be integrated into your GitHub Actions workflow simply by adding 
 
 This will make NetLogo available for use in subsequent steps of your workflow.
 
+### Functionality
+
 The action sets up a NetLogo environment by performing the following tasks:
 
-1. Downloads the specified NetLogo version
-2. Caches the installation (optional)
+1. Downloads the specified NetLogo version.
+2. Caches the installation (optional).
 3. Sets environment variables:
-  - `NETLOGO_HOME`: Installation directory path
-  - `NETLOGO_CONSOLE`: Console executable path
-  - `NETLOGO_VERSION`: Installed version
-4. Adds `NETLOGO_HOME` to `PATH`
-5. Creates `netlogo` and `NetLogo` symlinks
+  - `NETLOGO_HOME`: Installation directory path.
+  - `NETLOGO_CONSOLE`: Console executable path.
+  - `NETLOGO_VERSION`: Installed version.
+4. Adds `NETLOGO_HOME` to `PATH`.
+5. Creates `netlogo` and `NetLogo` symlinks.
 
 After the action completes, you can run NetLogo commands in subsequent steps using the `netlogo` command:
 
