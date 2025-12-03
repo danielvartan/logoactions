@@ -13,7 +13,7 @@ jobs:
       matrix:
         version: ['6.4.0', '7.0.2']
         cache: ['true', 'false']
-    name: NetLogo ${{ matrix.version }} (cache=${{ matrix.cache }})
+    name: NetLogo ${{matrix.version}} (cache: '${{matrix.cache}}')
     steps:
       - name: Check Out Repository Code
         uses: actions/checkout@v4
@@ -21,9 +21,9 @@ jobs:
       - name: Setup NetLogo
         uses: ./setup-netlogo
         with:
-          version: ${{ matrix.version }}
+          version: ${{matrix.version}}
           architecture: '64'
-          cache: ${{ matrix.cache }}
+          cache: ${{matrix.cache}}
 
       - name: Test NetLogo Installation
         run: |

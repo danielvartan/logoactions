@@ -38,6 +38,13 @@ jobs:
 
           cat "${table_file}"
 
+      - name: Upload Experiment 1 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-1-output
+          path: /tmp/artifacts/experiment-1-table.csv
+          retention-days: 90
+
       - name: Run Experiment 2
         run: |
           # Run Experiment 2
@@ -53,6 +60,13 @@ jobs:
             --table "${table_file}"
 
           cat "${table_file}"
+
+      - name: Upload Experiment 2 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-2-output
+          path: /tmp/artifacts/experiment-2-table.csv
+          retention-days: 90
 
       - name: Run Experiment 3
         run: |
@@ -70,6 +84,13 @@ jobs:
 
           cat "${table_file}"
 
+      - name: Upload Experiment 3 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-3-output
+          path: /tmp/artifacts/experiment-3-table.csv
+          retention-days: 90
+
       - name: Run Experiment 4
         run: |
           # Run Experiment 4
@@ -85,6 +106,13 @@ jobs:
             --table "$table_file"
 
           cat "$table_file"
+
+      - name: Upload Experiment 4 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: experiment-4-output
+          path: /tmp/artifacts/experiment-4-table.csv
+          retention-days: 90
 
       - name: Run Experiment 5
         run: |
@@ -102,9 +130,9 @@ jobs:
 
           cat "${table_file}"
 
-      - name: Upload Artifacts
+      - name: Upload Experiment 5 Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: behavior-space-experiments
-          path: /tmp/artifacts/
-          retention-days: 365 # Optional
+          name: experiment-5-output
+          path: /tmp/artifacts/experiment-5-table.csv
+          retention-days: 90

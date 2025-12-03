@@ -25,9 +25,9 @@ website:
   issue-url: https://github.com/danielvartan/netlogo-actions/issues/
   repo-branch: main
   repo-actions: [edit, source, issue]
+  search: false
   navbar:
     title: false
-    background: "#000000"
     right:
       - icon: github
         href: https://danielvartan.github.io/netlogo-actions/
