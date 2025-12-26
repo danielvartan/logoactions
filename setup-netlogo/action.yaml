@@ -67,6 +67,13 @@ runs:
           NETLOGO_VERSION=$( \
             curl -s \
               https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
+              | grep -o '"tag_name":[[:space:]]*"v\?[0-9.]*"' \
+              | grep -o '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?' \
+          )
+
+          NETLOGO_VERSION=$( \
+            curl -s \
+              https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
               | grep -oP '"tag_name":\s*"\Kv?[0-9]+\.[0-9]+(\.[0-9]+)?' \
               | tr -d 'v' \
           )
@@ -186,13 +193,14 @@ runs:
 
         download_url_regex=$( \
           printf "%s%s" \
-            '\"browser_download_url\":\s*\"\K[^"]+' \
-            "${{steps.netlogo-bundle.outputs.bundle_ext}}" \
+            '"browser_download_url":[[:space:]]*"[^"]*' \
+            "${{steps.netlogo-bundle.outputs.bundle_ext}}\"" \
         )
 
         download_url=$( \
           curl -s "${release_api_url}" \
-          | grep -oP "${download_url_regex}" \
+          | grep -o ${download_url_regex} \
+          | grep -o 'https://[^"]*' \
           | head -1 \
         )
 
