@@ -169,6 +169,7 @@ runs:
               exit 1
               ;;
         esac
+      shell: bash
 
     - name: Download NetLogo
       id: netlogo-download
