@@ -191,9 +191,10 @@ runs:
             "v${NETLOGO_VERSION}" \
         )
 
-        download_url=$(
+        download_url=$( \
           curl -s "${release_api_url}" \
-          | grep -oP '"browser_download_url":\s*"\K[^"]*'"${{steps.netlogo-bundle.outputs.bundle_ext}}" \
+          | grep -o '"browser_download_url":[[:space:]]*"[^"]*'"${{steps.netlogo-bundle.outputs.bundle_ext}}"'"' \
+          | grep -o 'https://[^"]*' \
           | head -1 \
         )
 
