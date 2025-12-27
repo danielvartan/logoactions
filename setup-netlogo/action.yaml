@@ -22,6 +22,8 @@ runs:
     - name: Validate arguments
       run: |
         # Validate arguments
+        # set -x
+
         if [[ ! "${{inputs.version}}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]] && \
            [[ "${{inputs.version}}" != "release" ]]; then
           echo \
@@ -68,10 +70,19 @@ runs:
         fi
       shell: bash
 
-    - name: Determine NetLogo version
+    - name: Install dependencies
+      if: runner.s == 'macOS'
+      run: |
+        # Install dependencies
+        set -x
+
+        brew install curl
+      shell: bash
+
+    - name: Get NetLogo version
       id: netlogo-version
       run: |
-        # Determine NetLogo version
+        # Get NetLogo version
         set -x
 
         if [[ "${{inputs.version}}" == "release" ]]; then
@@ -101,6 +112,8 @@ runs:
       id: cache-path
       run: |
         # Set cache path
+        # set -x
+
         case ${RUNNER_OS} in
           "Linux")
             echo "path=/opt/NetLogo-${NETLOGO_VERSION}" >> "${GITHUB_OUTPUT}"
@@ -136,6 +149,8 @@ runs:
         steps.netlogo-cache.outputs.cache-hit != 'true'
       run: |
         # Choose correct bundle for OS type
+        # set -x
+
         case ${RUNNER_OS} in
           "Linux")
               case ${RUNNER_ARCH} in
@@ -189,7 +204,7 @@ runs:
         steps.netlogo-cache.outputs.cache-hit != 'true'
       run: |
         # Download NetLogo
-        set -x
+        # set -x
 
         release_api_url=$( \
           printf "%s%s" \
@@ -223,6 +238,8 @@ runs:
     - name: Set NetLogo home
       run: |
         # Set NetLogo home
+        # set -x
+
         case ${RUNNER_OS} in
           "Linux")
               NETLOGO_HOME="/opt/NetLogo-${NETLOGO_VERSION}"
@@ -259,8 +276,11 @@ runs:
       if: |
         inputs.cache != 'true' ||
         steps.netlogo-cache.outputs.cache-hit != 'true'
+      timeout-minutes: 10
       run: |
         # Install NetLogo
+        # set -x
+
         bundle="${{steps.netlogo-download.outputs.bundle}}"
 
         case ${RUNNER_OS} in
@@ -305,8 +325,7 @@ runs:
               hdiutil detach "${volume_path}"
               ;;
            "Windows")
-              msiexec /i \
-                "${bundle}" /qn /norestart INSTALLDIR="${NETLOGO_HOME}"
+              msiexec /i "${bundle}" /qn /norestart
 
               if [[ ! -f "${NETLOGO_HOME}/NetLogo_Console.exe" ]]; then
                 echo "Error: NetLogo installation failed."
@@ -325,6 +344,8 @@ runs:
     - name: Set environment variables
       run: |
         # Set environment variables
+        # set -x
+
         bundle="${{steps.netlogo-download.outputs.bundle}}"
 
         case ${RUNNER_OS} in
@@ -363,6 +384,8 @@ runs:
     - name: Create symbolic links
       run: |
         # Create symbolic links
+        # set -x
+
         case ${RUNNER_OS} in
           "Linux")
             sudo ln -sf \
