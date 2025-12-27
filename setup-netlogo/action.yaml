@@ -276,7 +276,6 @@ runs:
       if: |
         inputs.cache != 'true' ||
         steps.netlogo-cache.outputs.cache-hit != 'true'
-      timeout-minutes: 10
       run: |
         # Install NetLogo
         # set -x
