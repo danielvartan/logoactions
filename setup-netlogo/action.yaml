@@ -47,7 +47,7 @@ runs:
             exit 1
           fi
 
-          if [[ "${{inputs.version}}" == "6.4.0"]] &&
+          if [[ "${{inputs.version}}" == "6.4.0" ]] &&
              [[ "${RUNNER_ARCH}" =~ ^(ARM|ARM64)$ ]]; then
             echo \
               "Error: NetLogo 6.4.0 and earlier versions are not" \
@@ -78,13 +78,6 @@ runs:
               https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
               | grep -o '"tag_name":[[:space:]]*"v\?[0-9.]*"' \
               | grep -o '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?' \
-          )
-
-          NETLOGO_VERSION=$( \
-            curl -s \
-              https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
-              | grep -oP '"tag_name":\s*"\Kv?[0-9]+\.[0-9]+(\.[0-9]+)?' \
-              | tr -d 'v' \
           )
 
           if [[ -z "${NETLOGO_VERSION}" ]]; then
@@ -151,13 +144,13 @@ runs:
                   echo "bundle_ext=32.tgz" >> "${GITHUB_OUTPUT}"
                   ;;
                 *)
-                  echo "${RUNNER_OS} ${RUNNER_ARCH} not supported"
+                  echo "${RUNNER_OS} "${RUNNER_ARCH}" not supported"
                   exit 1
                   ;;
               esac
               ;;
            "macOS")
-              case ${RUNNER_ARCH} in
+              case "${RUNNER_ARCH}" in
                 X86|X64)
                   echo "bundle_ext=x86_64.dmg" >> "${GITHUB_OUTPUT}"
                   ;;
@@ -167,7 +160,7 @@ runs:
               esac
               ;;
            "Windows")
-              case ${RUNNER_ARCH} in
+              case "${RUNNER_ARCH}" in
                 X64)
                   echo "bundle_ext=64.msi" >> "${GITHUB_OUTPUT}"
                   ;;
@@ -284,7 +277,7 @@ runs:
               ;;
            "Windows")
               NETLOGO_HOME=$( \
-                case ${RUNNER_ARCH} in
+                case "${RUNNER_ARCH}" in
                   X64)
                     echo "C:\Program Files\NetLogo ${NETLOGO_VERSION}"
                     ;;
@@ -295,6 +288,11 @@ runs:
               )
 
               msiexec /i "${bundle}" /qn /norestart INSTALLDIR="${NETLOGO_HOME}"
+
+              if [[ ! -f "${NETLOGO_HOME}/NetLogo_Console.exe" ]]; then
+                echo "Error: NetLogo installation failed."
+                exit 1
+              fi
 
               echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
               echo "NETLOGO_CONSOLE=${NETLOGO_HOME}\NetLogo_Console.exe" >> "${GITHUB_ENV}"
@@ -325,11 +323,11 @@ runs:
             ;;
           "macOS")
             sudo ln -sf \
-              "${NETLOGO_HOME}/Contents/MacOS/" \
+              "${NETLOGO_HOME}/Contents/MacOS/NetLogo ${NETLOGO_VERSION}" \
               /usr/local/bin/NetLogo
 
             sudo ln -sf \
-              "${NETLOGO_HOME}/Contents/MacOS/" \
+              "${NETLOGO_HOME}/Contents/MacOS/NetLogo ${NETLOGO_VERSION}" \
               /usr/local/bin/netlogo
             ;;
           "Windows")

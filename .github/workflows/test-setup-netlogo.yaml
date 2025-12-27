@@ -17,7 +17,7 @@ jobs:
           - {os: ubuntu-latest, version: '6.4.0'}
           - {os: ubuntu-latest, version: 'release'}
         cache: ['true', 'false']
-    name: "${{matrix.config.os}} (NetLogo ${{matrix.config.version}}) (cache: '${{matrix.cache}}')"
+    name: "${{matrix.config.os}} (version: '${{matrix.config.version}}') (cache: '${{matrix.cache}}')"
     runs-on: ${{matrix.config.os}}
     steps:
       - name: Check out repository
