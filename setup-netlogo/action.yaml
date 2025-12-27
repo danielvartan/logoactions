@@ -70,28 +70,31 @@ runs:
         fi
       shell: bash
 
-    - name: Install dependencies
-      if: runner.os == 'macOS'
-      run: |
-        # Install dependencies
-        set -x
-
-        brew install curl
-      shell: bash
-
     - name: Get NetLogo version
       id: netlogo-version
       run: |
         # Get NetLogo version
         set -x
 
+        NETLOGO_VERSION=$( \
+          curl -s \
+          https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
+          | jq -r .tag_name | sed 's/^v//' \
+        )
+
         if [[ "${{inputs.version}}" == "release" ]]; then
           NETLOGO_VERSION=$( \
             curl -s \
-              https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
-              | grep -o '"tag_name":[[:space:]]*"v\?[0-9.]*"' \
-              | grep -o '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?' \
+            https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
+            | jq -r .tag_name | sed 's/^v//' \
           )
+
+          # NETLOGO_VERSION=$( \
+          #   curl -s \
+          #     https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
+          #     | grep -o '"tag_name":[[:space:]]*"v\?[0-9.]*"' \
+          #     | grep -o '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?' \
+          # )
 
           if [[ -z "${NETLOGO_VERSION}" ]]; then
             echo \
@@ -212,10 +215,17 @@ runs:
             "v${NETLOGO_VERSION}" \
         )
 
+        # download_url=$( \
+        #   curl -s "${release_api_url}" \
+        #     | grep -o '"browser_download_url":[[:space:]]*"[^"]*'"${{steps.netlogo-bundle.outputs.bundle_ext}}"'"' \
+        #     | grep -o 'https://[^"]*' \
+        #     | head -1 \
+        # )
+
         download_url=$( \
           curl -s "${release_api_url}" \
-            | grep -o '"browser_download_url":[[:space:]]*"[^"]*'"${{steps.netlogo-bundle.outputs.bundle_ext}}"'"' \
-            | grep -o 'https://[^"]*' \
+            | jq -r --arg ext "${{steps.netlogo-bundle.outputs.bundle_ext}}" \
+              '.assets[] | select(.browser_download_url | endswith($ext)) | .browser_download_url' \
             | head -1 \
         )
 
