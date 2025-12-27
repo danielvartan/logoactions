@@ -76,27 +76,17 @@ runs:
         # Get NetLogo version
         set -x
 
-        NETLOGO_VERSION=$( \
-          curl -s \
-          https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
-          | jq -r .tag_name | sed 's/^v//' \
-        )
-
         if [[ "${{inputs.version}}" == "release" ]]; then
+          curl -s \
+            https://api.github.com/repos/NetLogo/NetLogo/releases/latest
+
           NETLOGO_VERSION=$( \
             curl -s \
             https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
             | jq -r .tag_name | sed 's/^v//' \
           )
 
-          # NETLOGO_VERSION=$( \
-          #   curl -s \
-          #     https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
-          #     | grep -o '"tag_name":[[:space:]]*"v\?[0-9.]*"' \
-          #     | grep -o '[0-9]\+\.[0-9]\+\(\.[0-9]\+\)\?' \
-          # )
-
-          if [[ -z "${NETLOGO_VERSION}" ]]; then
+          if [[ "${NETLOGO_VERSION}" == "null" || -z "${NETLOGO_VERSION}" ]]; then
             echo \
               "Error: Could not fetch latest NetLogo version from GitHub API."
 
@@ -113,6 +103,7 @@ runs:
 
     - name: Set cache path
       id: cache-path
+      if: inputs.cache == 'true'
       run: |
         # Set cache path
         # set -x
@@ -214,13 +205,6 @@ runs:
             "https://api.github.com/repos/NetLogo/NetLogo/releases/tags/" \
             "v${NETLOGO_VERSION}" \
         )
-
-        # download_url=$( \
-        #   curl -s "${release_api_url}" \
-        #     | grep -o '"browser_download_url":[[:space:]]*"[^"]*'"${{steps.netlogo-bundle.outputs.bundle_ext}}"'"' \
-        #     | grep -o 'https://[^"]*' \
-        #     | head -1 \
-        # )
 
         download_url=$( \
           curl -s "${release_api_url}" \
