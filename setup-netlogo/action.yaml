@@ -187,6 +187,8 @@ runs:
         steps.netlogo-cache.outputs.cache-hit != 'true'
       run: |
         # Download NetLogo
+        set -x
+
         release_api_url=$( \
           printf "%s%s" \
             "https://api.github.com/repos/NetLogo/NetLogo/releases/tags/" \
