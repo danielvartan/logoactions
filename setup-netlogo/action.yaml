@@ -220,18 +220,51 @@ runs:
         echo "bundle=${bundle}" >> "${GITHUB_OUTPUT}"
       shell: bash
 
-    - name: Install NetLogo and set environment variables
-      if: |
-        inputs.cache != 'true' ||
-        steps.netlogo-cache.outputs.cache-hit != 'true'
+    - name: Set NetLogo home
       run: |
-        # Install NetLogo and set environment variables
-        bundle="${{steps.netlogo-download.outputs.bundle}}"
-
+        # Set NetLogo home
         case ${RUNNER_OS} in
           "Linux")
               NETLOGO_HOME="/opt/NetLogo-${NETLOGO_VERSION}"
 
+              echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
+              ;;
+           "macOS")
+              NETLOGO_HOME="/Applications/NetLogo ${NETLOGO_VERSION}.app"
+
+              echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
+              ;;
+           "Windows")
+              NETLOGO_HOME=$( \
+                case "${RUNNER_ARCH}" in
+                  X64)
+                    echo "C:\Program Files\NetLogo ${NETLOGO_VERSION}"
+                    ;;
+                  X86)
+                    echo "C:\Program Files (x86)\NetLogo ${NETLOGO_VERSION}"
+                    ;;
+                esac
+              )
+
+              echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
+              ;;
+            *)
+              echo "${RUNNER_OS} not supported"
+              exit 1
+              ;;
+        esac
+      shell: bash
+
+    - name: Install NetLogo
+      if: |
+        inputs.cache != 'true' ||
+        steps.netlogo-cache.outputs.cache-hit != 'true'
+      run: |
+        # Install NetLogo
+        bundle="${{steps.netlogo-download.outputs.bundle}}"
+
+        case ${RUNNER_OS} in
+          "Linux")
               netlogo_console_path=$( \
                 tar -tzf "${bundle}" \
                 | grep "_Console$" \
@@ -257,23 +290,50 @@ runs:
                   -C "${NETLOGO_HOME}" \
                   --strip-components=1
               fi
+              ;;
+           "macOS")
+              hdiutil attach "${bundle}"
 
+              volume_path=$( \
+                hdiutil info | grep "/Volumes/NetLogo" | awk '{print $1}' \
+              )
+
+              sudo cp -R \
+                "/Volumes/NetLogo ${NETLOGO_VERSION}/NetLogo ${NETLOGO_VERSION}.app" \
+                "${NETLOGO_HOME}"
+
+              hdiutil detach "${volume_path}"
+              ;;
+           "Windows")
+              msiexec /i \
+                "${bundle}" /qn /norestart INSTALLDIR="${NETLOGO_HOME}"
+
+              if [[ ! -f "${NETLOGO_HOME}/NetLogo_Console.exe" ]]; then
+                echo "Error: NetLogo installation failed."
+                exit 1
+              fi
+              ;;
+            *)
+              echo "${RUNNER_OS} not supported"
+              exit 1
+              ;;
+        esac
+
+        rm -f "${bundle}"
+      shell: bash
+
+    - name: Set environment variables
+      run: |
+        # Set environment variables
+        bundle="${{steps.netlogo-download.outputs.bundle}}"
+
+        case ${RUNNER_OS} in
+          "Linux")
               echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
               echo "NETLOGO_CONSOLE=${NETLOGO_HOME}/NetLogo_Console" >> "${GITHUB_ENV}"
               echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
               ;;
            "macOS")
-              NETLOGO_HOME="/Applications/NetLogo ${NETLOGO_VERSION}.app"
-
-              hdiutil attach "${bundle}"
-
-              volume_path=$(hdiutil info | grep "/Volumes/NetLogo" | awk '{print $1}')
-
-              sudo cp -R "/Volumes/NetLogo ${NETLOGO_VERSION}/NetLogo ${NETLOGO_VERSION}.app" \
-                "${NETLOGO_HOME}"
-
-              hdiutil detach "${volume_path}"
-
               echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
               echo "NETLOGO_CONSOLE=${NETLOGO_HOME}/Contents/MacOS/NetLogo_Console" >> "${GITHUB_ENV}"
               echo "${NETLOGO_HOME}/Contents/MacOS" >> "${GITHUB_PATH}"
@@ -290,14 +350,6 @@ runs:
                 esac
               )
 
-              msiexec /i "${bundle}" /qn /norestart INSTALLDIR="${NETLOGO_HOME}"
-
-              if [[ ! -f "${NETLOGO_HOME}/NetLogo_Console.exe" ]]; then
-                echo "Error: NetLogo installation failed."
-                exit 1
-              fi
-
-              echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
               echo "NETLOGO_CONSOLE=${NETLOGO_HOME}\NetLogo_Console.exe" >> "${GITHUB_ENV}"
               echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
               ;;
@@ -306,10 +358,7 @@ runs:
               exit 1
               ;;
         esac
-
-        rm -f "${bundle}"
       shell: bash
-
 
     - name: Create symbolic links
       run: |
