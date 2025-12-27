@@ -8,7 +8,7 @@ inputs:
   version:
     description: |
       A single-quoted (!important) character string indicating the NetLogo
-      version to use (e.g., `'7.0.2'`). Use `'release'` to get the latest
+      version to use (e.g., `'7.0.3'`). Use `'release'` to get the latest
       stable release. Only versions 6.4.0 and above are supported.
     default: 'release'
   cache:
@@ -72,6 +72,8 @@ runs:
       id: netlogo-version
       run: |
         # Determine NetLogo version
+        set -x
+
         if [[ "${{inputs.version}}" == "release" ]]; then
           NETLOGO_VERSION=$( \
             curl -s \
@@ -197,9 +199,9 @@ runs:
 
         download_url=$( \
           curl -s "${release_api_url}" \
-          | grep -o '"browser_download_url":[[:space:]]*"[^"]*'"${{steps.netlogo-bundle.outputs.bundle_ext}}"'"' \
-          | grep -o 'https://[^"]*' \
-          | head -1 \
+            | grep -o '"browser_download_url":[[:space:]]*"[^"]*'"${{steps.netlogo-bundle.outputs.bundle_ext}}"'"' \
+            | grep -o 'https://[^"]*' \
+            | head -1 \
         )
 
         if [[ -z "${download_url}" ]]; then
@@ -212,9 +214,8 @@ runs:
 
         bundle="$(basename "${download_url}")"
 
-        wget \
-          "${download_url}" -qO "${bundle}" || \
-          { echo "Error: Download failed"; exit 1; }
+        curl -L "${download_url}" -o \
+          "${bundle}" || { echo "Error: Download failed"; exit 1; }
 
         echo "bundle=${bundle}" >> "${GITHUB_OUTPUT}"
       shell: bash
