@@ -372,9 +372,17 @@ runs:
         # set -x
 
         case ${RUNNER_OS} in
-          "Linux" | "macOS")
-            sudo ln -sf "${NETLOGO_CONSOLE}" /usr/local/bin/NetLogo
-            sudo ln -sf "${NETLOGO_CONSOLE}" /usr/local/bin/netlogo
+          "Linux")
+            netlogo_binary="$(readlink -f "${NETLOGO_CONSOLE}")"
+
+            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
+            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            ;;
+          "macOS")
+            netlogo_binary="${NETLOGO_HOME}/NetLogo 7.0.3.app/Contents/MacOS/NetLogo 7.0.3"
+
+            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
+            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
             ;;
           "Windows")
             cmd //c mklink "C:\Windows\System32\NetLogo.exe" "${NETLOGO_HOME}\NetLogo.exe"

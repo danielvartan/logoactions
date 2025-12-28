@@ -55,6 +55,7 @@
     "orcid",
     "pandoc",
     "readarray",
+    "readlink",
     "renv",
     "Rscript",
     "shopt",
