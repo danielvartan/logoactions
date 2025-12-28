@@ -2,14 +2,15 @@ on:
   push:
     branches: [main, master]
 
-name: "Run BehaviorSpace Experiments"
-
-permissions: read-all
+name: Run BehaviorSpace experiments
 
 jobs:
   run-experiments:
+    name: Run experiments
     runs-on: ubuntu-latest
-    name: Run Experiments
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions: read-all
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

@@ -1,9 +1,14 @@
 name: setup-netlogo
 author: Daniel Vartanian
 description: |
-  This GitHub Action sets up the NetLogo environment on a Linux runner by
-  downloading and installing NetLogo, configuring environment variables, and
-  updating the system PATH. Only versions 6.4.0 and above are supported.
+  This GitHub Action installs NetLogo on the runner by downloading the
+  appropriate bundle, configuring environment variables, and updating the system
+  PATH. It supports `ubuntu-latest`, `macos-latest`, and `windows-latest`
+  runners, and only NetLogo versions 6.4.0 and above.
+
+  Bundles are downloaded from the official NetLogo GitHub releases. To avoid
+  GitHub API rate limiting, set `GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}` as an
+  environment variable in the workflow that uses this action.
 inputs:
   version:
     description: |
@@ -74,24 +79,21 @@ runs:
       id: netlogo-version
       run: |
         # Get NetLogo version
-        set -x
+        # set -x
 
         if [[ "${{inputs.version}}" == "release" ]]; then
-          curl -s \
-            https://api.github.com/repos/NetLogo/NetLogo/releases/latest
-
-          NETLOGO_VERSION=$( \
-            curl -s \
-            https://api.github.com/repos/NetLogo/NetLogo/releases/latest \
-            | jq -r .tag_name | sed 's/^v//' \
+          version_tag=$( \
+            gh api repos/NetLogo/NetLogo/releases/latest -q .tag_name \
           )
 
-          if [[ "${NETLOGO_VERSION}" == "null" || -z "${NETLOGO_VERSION}" ]]; then
+          if [[ -z "${version_tag}" || "${version_tag}" == "null" ]]; then
             echo \
               "Error: Could not fetch latest NetLogo version from GitHub API."
 
             exit 1
           fi
+
+          NETLOGO_VERSION="${version_tag#v}"
         else
           NETLOGO_VERSION="${{inputs.version}}"
         fi
@@ -99,7 +101,6 @@ runs:
         echo "version=${NETLOGO_VERSION}" >> "${GITHUB_OUTPUT}"
         echo "NETLOGO_VERSION=${NETLOGO_VERSION}" >> "${GITHUB_ENV}"
       shell: bash
-
 
     - name: Set cache path
       id: cache-path
@@ -128,7 +129,7 @@ runs:
         esac
       shell: bash
 
-    - name: Restore NetLogo cache
+    - name: Restore NetLogo from cache
       id: netlogo-cache
       if: inputs.cache == 'true'
       uses: actions/cache@v4
@@ -156,6 +157,7 @@ runs:
                   ;;
                 *)
                   echo "${RUNNER_OS} "${RUNNER_ARCH}" not supported"
+
                   exit 1
                   ;;
               esac
@@ -180,6 +182,7 @@ runs:
                   ;;
                 *)
                   echo "${RUNNER_OS} ${RUNNER_ARCH} not supported"
+
                   exit 1
                   ;;
               esac
@@ -200,31 +203,23 @@ runs:
         # Download NetLogo
         # set -x
 
-        release_api_url=$( \
-          printf "%s%s" \
-            "https://api.github.com/repos/NetLogo/NetLogo/releases/tags/" \
-            "v${NETLOGO_VERSION}" \
-        )
+        repo="NetLogo/NetLogo"
+        tag="v${NETLOGO_VERSION}"
+        extension="${{steps.netlogo-bundle.outputs.bundle_ext}}"
 
-        download_url=$( \
-          curl -s "${release_api_url}" \
-            | jq -r --arg ext "${{steps.netlogo-bundle.outputs.bundle_ext}}" \
-              '.assets[] | select(.browser_download_url | endswith($ext)) | .browser_download_url' \
-            | head -1 \
-        )
+        gh release download "$tag" \
+          --repo "$repo" \
+          --pattern "*${extension}" \
+          --clobber
 
-        if [[ -z "${download_url}" ]]; then
+        bundle=$(ls *"${extension}" | head -1)
+
+        if [[ -z "$bundle" ]]; then
           echo \
-            "Error: Could not find download URL for NetLogo" \
-            "${NETLOGO_VERSION} (${{runner.os}} ${{runner.arch}})."
+            "Error: No file matching *${extension} found in release ${tag}."
 
           exit 1
         fi
-
-        bundle="$(basename "${download_url}")"
-
-        curl -L "${download_url}" -o \
-          "${bundle}" || { echo "Error: Download failed"; exit 1; }
 
         echo "bundle=${bundle}" >> "${GITHUB_OUTPUT}"
       shell: bash

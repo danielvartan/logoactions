@@ -4,8 +4,6 @@ on:
 
 name: "setup-netlogo" # Do not change!
 
-permissions: read-all
-
 jobs:
   test-setup-netlogo:
     strategy:
@@ -19,6 +17,9 @@ jobs:
         cache: ['true', 'false']
     name: "${{matrix.config.os}} (version: '${{matrix.config.version}}') (cache: '${{matrix.cache}}')"
     runs-on: ${{matrix.config.os}}
+    env:
+      GITHUB_PAT: ${{secrets.GITHUB_TOKEN}}
+    permissions: read-all
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -32,7 +33,7 @@ jobs:
       - name: Test NetLogo installation
         run: |
           # Test NetLogo installation
-          if [[ "${{matrix.config.version}}" =~ ^[0-6]\. ]]; then
+          if [[ "${NETLOGO_VERSION}" =~ ^[0-6]\. ]]; then
             model_ext="nlogo"
           else
             model_ext="nlogox"

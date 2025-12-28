@@ -2,6 +2,8 @@
 
 - `[setup-netlogo]` had the `architecture` argument removed. The action now automatically detects the architecture of the runner machine.
 - `[setup-netlogo]` now supports macOS and Windows runners in addition to Linux runners.
+- `[setup-netlogo]` now uses `gh` instead of `curl` to download NetLogo releases.
+- `[setup-netlogo]` now uses `jq` instead of `grep` and `sed` to parse JSON responses from the GitHub API.
 - `[check-netlogo`] now check OS compatibility before running Behaviorspace experiments.
 
 # v1.2.1 (2025-12-04)

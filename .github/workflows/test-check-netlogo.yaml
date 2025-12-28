@@ -8,8 +8,10 @@ permissions: read-all
 
 jobs:
   test-check-netlogo:
+    name: Check NetLogo models
     runs-on: ubuntu-latest
-    name: Check NetLogo Models
+    env:
+      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4

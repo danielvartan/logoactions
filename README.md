@@ -33,19 +33,22 @@ You can view this workflow in action on the repository's [actions page](https://
 
 Below is a basic workflow configuration. To use it, create a file named `check-netlogo.yaml` with the content below and place it in the `.github/workflows` folder at the root of your repository.
 
+The runners `windows-latest` and `macos-latest` are also supported.
+
 ```yaml
 on:
   push:
     branches: [main, master]
 
-name: "NetLogo Check"
-
-permissions: read-all
+name: NetLogo Check
 
 jobs:
   check-netlogo:
+    name: Check NetLogo models
     runs-on: ubuntu-latest
-    name: Check NetLogo Models
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions: read-all
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -70,14 +73,15 @@ on:
   push:
     branches: [main, master]
 
-name: "Run BehaviorSpace Experiments"
-
-permissions: read-all
+name: Run BehaviorSpace experiments
 
 jobs:
   run-experiments:
+    name: Run experiments
     runs-on: ubuntu-latest
-    name: Run Experiments
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions: read-all
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -127,12 +131,14 @@ on:
   push:
     branches: [main, master]
 
-name: "Run Experiments with Quarto and logolink"
+name: Run experiments with Quarto and logolink
 
 jobs:
   run-logolink:
     runs-on: ubuntu-latest
-    name: Run Experiments
+    name: Run experiments
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
       pages: write
@@ -245,6 +251,10 @@ Use the `with` keyword to change the default values. Example:
     ignore: 'models/old/**, docs/**'
 ```
 
+### Supported Platforms
+
+This action support only `ubuntu-latest` at the moment.
+
 ## `setup-netlogo` Reference
 
 The `setup-netlogo` action is what allows all the examples shown above to run NetLogo models in GitHub Actions workflows. You can easily customize the action to fit your needs.
@@ -302,9 +312,11 @@ Use the `with` keyword to change the default values. Example:
     cache: 'true'
 ```
 
-## Supported Platforms
+### Supported Platforms
 
-All actions support only **Linux** runners (e.g., `ubuntu-latest`). I do not plan to support other operating systems.
+This action support only `ubuntu-latest` at the moment.
+
+<!-- The runners `ubuntu-latest` and `windows-latest` and `macos-latest` are supported. We recommend using `ubuntu-latest` whenever possible. -->
 
 ## License
 
