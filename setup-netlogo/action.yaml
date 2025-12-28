@@ -323,33 +323,38 @@ runs:
               rm -rf "${netlogo_mountpoint}"
               ;;
            "Windows")
-              win_install_dir="$(cygpath -w ${NETLOGO_HOME})"
-
               powershell.exe \
                 -Command \
                 "Start-Process msiexec.exe \
                 -ArgumentList '/i \"${bundle}\" /qn /norestart \
-                INSTALLDIR=\"${win_install_dir}\" \
-                APPLICATIONROOTDIRECTORY=\"${win_install_dir}\" \
-                ALLUSERS=1 \
-                /l*v msi_install.log' -Wait"
+                /l*v msi_install.log' \
+                -Wait"
 
               netlogo_console_path="${NETLOGO_HOME}/NetLogo_Console.exe"
 
               if [[ ! -f "${netlogo_console_path}" ]]; then
-                echo "Error: NetLogo installation failed."
+                actual_path=$(
+                  find "/c/Program Files" \
+                    -maxdepth 2 \
+                    -name "NetLogo_Console.exe" \
+                    -print \
+                    -quit \
+                    | xargs -0 dirname 2>/dev/null
+                )
 
-                if [[ -f msi_install.log ]]; then
-                  echo "--- MSI LOG SNIPPET ---"
+                if [[ -n "${actual_path}" ]]; then
+                  echo "Found NetLogo at ${actual_path}"
 
-                  tail -n 100 msi_install.log
+                  echo "NETLOGO_HOME=${actual_path}" >> "${GITHUB_ENV}"
                 else
                   echo \
-                    "MSI log was never created." \
-                    "The installer likely didn't start."
-                fi
+                    "Error: NetLogo installation failed (1603)." \
+                    "Check msi_install.log."
 
-                exit 1
+                  tail -n 100 msi_install.log
+
+                  exit 1
+                fi
               fi
               ;;
             *)
