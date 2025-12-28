@@ -250,7 +250,7 @@ runs:
                   ;;
               esac
 
-              echo "NETLOGO_HOME=${cygpath -w $NETLOGO_HOME}" >> "${GITHUB_ENV}"
+              echo "NETLOGO_HOME=$(cygpath -w "$NETLOGO_HOME")" >> "${GITHUB_ENV}"
               ;;
             *)
               echo "${RUNNER_OS} not supported"
