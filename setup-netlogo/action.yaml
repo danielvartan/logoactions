@@ -231,12 +231,12 @@ runs:
 
         case ${RUNNER_OS} in
           "Linux")
-              NETLOGO_HOME="/opt/NetLogo-${NETLOGO_VERSION}"
+              NETLOGO_HOME="/opt/NetLogo ${NETLOGO_VERSION}"
 
               echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
               ;;
            "macOS")
-              NETLOGO_HOME="/Applications/NetLogo ${NETLOGO_VERSION}.app"
+              NETLOGO_HOME="/Applications/NetLogo ${NETLOGO_VERSION}"
 
               echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
               ;;
@@ -274,7 +274,7 @@ runs:
               netlogo_console_path=$( \
                 tar -tzf "${bundle}" \
                 | grep "NetLogo_Console$" \
-                | head -1 \
+                | head -n 1 \
               )
 
               if [[ -z "${netlogo_console_path}" ]]; then
@@ -309,7 +309,7 @@ runs:
 
               netlogo_console_path=$( \
                 find "${netlogo_mountpoint}" -name "NetLogo_Console" \
-                | head -1 \
+                | head -n 1 \
               )
 
               if [[ -z "${netlogo_console_path}" ]]; then
@@ -351,36 +351,19 @@ runs:
         bundle="${{steps.netlogo-download.outputs.bundle}}"
 
         case ${RUNNER_OS} in
-          "Linux")
-              echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
+          "Linux|macOS")
               echo "NETLOGO_CONSOLE=${NETLOGO_HOME}/NetLogo_Console" >> "${GITHUB_ENV}"
-              echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
-              ;;
-           "macOS")
-              echo "NETLOGO_HOME=${NETLOGO_HOME}" >> "${GITHUB_ENV}"
-              echo "NETLOGO_CONSOLE=${NETLOGO_HOME}/Contents/MacOS/NetLogo_Console" >> "${GITHUB_ENV}"
-              echo "${NETLOGO_HOME}/Contents/MacOS" >> "${GITHUB_PATH}"
               ;;
            "Windows")
-              NETLOGO_HOME=$( \
-                case "${RUNNER_ARCH}" in
-                  X64)
-                    echo "C:\Program Files\NetLogo ${NETLOGO_VERSION}"
-                    ;;
-                  X86)
-                    echo "C:\Program Files (x86)\NetLogo ${NETLOGO_VERSION}"
-                    ;;
-                esac
-              )
-
               echo "NETLOGO_CONSOLE=${NETLOGO_HOME}\NetLogo_Console.exe" >> "${GITHUB_ENV}"
-              echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
               ;;
             *)
               echo "${RUNNER_OS} not supported"
               exit 1
               ;;
         esac
+
+        echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
       shell: bash
 
     - name: Create symbolic links
@@ -389,23 +372,9 @@ runs:
         # set -x
 
         case ${RUNNER_OS} in
-          "Linux")
-            sudo ln -sf \
-              "${NETLOGO_HOME}/bin/NetLogo" \
-              /usr/local/bin/NetLogo
-
-            sudo ln -sf \
-              "${NETLOGO_HOME}/bin/NetLogo" \
-              /usr/local/bin/netlogo
-            ;;
-          "macOS")
-            sudo ln -sf \
-              "${NETLOGO_HOME}/Contents/MacOS/NetLogo ${NETLOGO_VERSION}" \
-              /usr/local/bin/NetLogo
-
-            sudo ln -sf \
-              "${NETLOGO_HOME}/Contents/MacOS/NetLogo ${NETLOGO_VERSION}" \
-              /usr/local/bin/netlogo
+          "Linux|macOS")
+            sudo ln -sf "${NETLOGO_CONSOLE}" /usr/local/bin/NetLogo
+            sudo ln -sf "${NETLOGO_CONSOLE}" /usr/local/bin/netlogo
             ;;
           "Windows")
             cmd //c mklink "C:\Windows\System32\NetLogo.exe" "${NETLOGO_HOME}\NetLogo.exe"
