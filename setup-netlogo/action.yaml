@@ -273,12 +273,13 @@ runs:
           "Linux")
               netlogo_console_path=$( \
                 tar -tzf "${bundle}" \
-                | grep "_Console$" \
+                | grep "NetLogo_Console$" \
                 | head -1 \
               )
 
               if [[ -z "${netlogo_console_path}" ]]; then
                 echo "Error: NetLogo_Console not found in bundle."
+
                 exit 1
               fi
 
@@ -298,17 +299,32 @@ runs:
               fi
               ;;
            "macOS")
-              hdiutil attach "${bundle}"
+              netlogo_mountpoint="/tmp/netlogo_mountpoint"
 
-              volume_path=$( \
-                hdiutil info | grep "/Volumes/NetLogo" | awk '{print $1}' \
+              mkdir -p "${netlogo_mountpoint}"
+
+              hdiutil attach "${bundle}" \
+                -mountpoint "${netlogo_mountpoint}" \
+                -quiet
+
+              netlogo_console_path=$( \
+                find "${netlogo_mountpoint}" -name "NetLogo_Console" \
+                | head -1 \
               )
 
-              sudo cp -R \
-                "/Volumes/NetLogo ${NETLOGO_VERSION}/NetLogo ${NETLOGO_VERSION}.app" \
-                "${NETLOGO_HOME}"
+              if [[ -z "${netlogo_console_path}" ]]; then
+                echo "Error: NetLogo_Console not found in bundle."
 
-              hdiutil detach "${volume_path}"
+                exit 1
+              fi
+
+              netlogo_console_dir=$(dirname "${netlogo_console_path}")
+
+              sudo mkdir -p "${NETLOGO_HOME}"
+              sudo cp -Rp "${netlogo_console_dir}/." "${NETLOGO_HOME}"
+
+              hdiutil detach "${netlogo_mountpoint}" -force
+              rm -rf "${netlogo_mountpoint}"
               ;;
            "Windows")
               msiexec /i "${bundle}" /qn /norestart
