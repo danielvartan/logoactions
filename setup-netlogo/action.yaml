@@ -265,7 +265,7 @@ runs:
         steps.netlogo-cache.outputs.cache-hit != 'true'
       run: |
         # Install NetLogo
-        # set -x
+        set -x
 
         bundle="${{steps.netlogo-download.outputs.bundle}}"
 
