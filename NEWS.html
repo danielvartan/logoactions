@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Daniel Vartanian">
-<meta name="dcterms.date" content="2025-12-04">
+<meta name="dcterms.date" content="2025-12-28">
 
 <title>NetLogo-Actions: GitHub Actions for the NetLogo Community 🚀</title>
 <style>
@@ -110,7 +110,7 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Published</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">December 4, 2025</p>
+      <p class="date">December 28, 2025</p>
     </div>
   </div>
   
@@ -122,8 +122,21 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="v1.2.0.9000-development-version" class="level1">
-<h1>v1.2.0.9000 (development version)</h1>
+<section id="v1.3.0.9000-development-version" class="level1">
+<h1>v1.3.0.9000 (development version)</h1>
+</section>
+<section id="v1.3.0-2025-12-28" class="level1">
+<h1>v1.3.0 (2025-12-28)</h1>
+<ul>
+<li><p><code>[setup-netlogo]</code> had the <code>architecture</code> argument removed. The action now automatically detects the architecture of the runner machine.</p></li>
+<li><p><code>[setup-netlogo]</code> now supports macOS and Windows runners in addition to Linux runners.</p></li>
+<li><p><code>[setup-netlogo]</code> now uses <code>gh</code> instead of <code>curl</code> to download NetLogo releases.</p></li>
+<li><p><code>[setup-netlogo]</code> now requires setting up the <code>GITHUB_TOKEN</code> secret in order to authenticate with the GitHub API when downloading NetLogo releases.</p></li>
+<li><p><code>[setup-netlogo]</code> now uses <code>jq</code> instead of <code>grep</code> and <code>sed</code> to parse JSON responses from the GitHub API.</p></li>
+<li><p><code>[check-netlogo]</code> now check OS compatibility before running Behaviorspace experiments.</p></li>
+<li><p>The workflow examples were improved to reflect the changes above.</p></li>
+<li><p>The documentation was updated to reflect the changes above.</p></li>
+</ul>
 </section>
 <section id="v1.2.1-2025-12-04" class="level1">
 <h1>v1.2.1 (2025-12-04)</h1>
