@@ -25,6 +25,7 @@
     "behaviorsearch",
     "Behaviorspace",
     "Clim",
+    "cnpq",
     "compgen",
     "danielvartan",
     "Dcom",
@@ -46,6 +47,7 @@
     "libwebp",
     "libx",
     "logolink",
+    "magrittr",
     "mklink",
     "mountpoint",
     "msiexec",
@@ -59,8 +61,11 @@
     "readarray",
     "readlink",
     "renv",
+    "resiclima",
     "Rscript",
+    "SECTICS",
     "shopt",
+    "sustentarea",
     "Vartanian",
     "xvzf"
   ]

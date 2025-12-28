@@ -60,7 +60,11 @@
   "codeRepository": "https://github.com/danielvartan/netlogo-actions",
   "issueTracker": "https://github.com/danielvartan/netlogo-actions/issues",
   "runtimePlatform": "GitHub Actions",
-  "operatingSystem": "Linux",
+  "operatingSystem": [
+    "Linux",
+    "macOS",
+    "Windows"
+  ],
   "developmentStatus": "active",
   "readme": "https://github.com/danielvartan/netlogo-actions/blob/main/README.md",
   "releaseNotes": "https://github.com/danielvartan/netlogo-actions/blob/main/NEWS.md",

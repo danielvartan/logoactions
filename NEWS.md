@@ -1,4 +1,6 @@
-# v1.2.1.9000 (development version)
+# v1.3.0.9000 (development version)
+
+# v1.3.0 (2025-12-28)
 
 - `[setup-netlogo]` had the `architecture` argument removed. The action now automatically detects the architecture of the runner machine.
 - `[setup-netlogo]` now supports macOS and Windows runners in addition to Linux runners.

@@ -12,9 +12,11 @@ See the repository [README](https://github.com/danielvartan/netlogo-actions#netl
 #| label: Set the Environment
 #| output: false
 
+library(logolink) # github.com/danielvartan/logolink
+
 library(dplyr)
 library(ggplot2)
-library(logolink) # github.com/danielvartan/logolink
+library(magrittr)
 ```
 
 ### Set `ggplot2` Theme
@@ -103,6 +105,7 @@ results
 
 plot_data <-
   results |>
+  extract2("table") |>
   summarize(
     across(everything(), ~ mean(.x, na.rm = TRUE)),
     .by = c(step, number_of_wolves)
@@ -112,7 +115,9 @@ plot_data <-
 
 ```{r}
 plot_data |>
-  mutate(number_of_wolves = as.factor(number_of_wolves)) |>
+  mutate(
+    number_of_wolves = as.factor(number_of_wolves)
+  ) |>
   ggplot(
     aes(
       x = step,
@@ -121,12 +126,12 @@ plot_data |>
       color = number_of_wolves
     )
   ) +
+  geom_line() +
   labs(
     x = "Time Step",
     y = "Average Number of Sheep",
     color = "Wolves"
-  ) +
-  geom_line()
+  )
 ```
 
 ## Spread of Disease Model
@@ -197,6 +202,7 @@ results
 ```{r}
 data <-
   results |>
+  extract2("table") |>
   rename(infected = count_turtles_with_infected) |>
   mutate(
     variant = as.factor(variant),
@@ -217,7 +223,9 @@ data
 
 ```{r}
 data |>
-  mutate(num_people = as.factor(num_people)) |>
+  mutate(
+    num_people = as.factor(num_people)
+  ) |>
   ggplot(
     aes(
       x = step,
@@ -230,14 +238,14 @@ data |>
     size = 1,
     alpha = 0.75
   ) +
+  scale_x_continuous(breaks = seq(0, max(data$step), 100)) +
   labs(
     x = "Steps",
     y = "Fraction of Infected",
     title = "Infected Over Time",
     color = "People",
     shape = "People"
-  ) +
-  scale_x_continuous(breaks = seq(0, max(data$step), 100))
+  )
 ```
 
 ```{r}
@@ -250,14 +258,14 @@ plot <-
       color = as.factor(num_people)
     )
   ) +
+  scale_x_continuous(
+    breaks = seq(0, max(data$step), 100)
+  ) +
   labs(
     x = "Steps",
     y = "Fraction of Infected",
     title = "Infected Over Time",
     color = "People"
-  ) +
-  scale_x_continuous(
-    breaks = seq(0, max(data$step), 100)
   )
 
 data_i <-
@@ -326,15 +334,15 @@ summarized_data |>
     width = 5
   ) +
   geom_line() +
+  scale_x_continuous(
+    breaks = seq(0, max(summarized_data$step), 100)
+  ) +
   labs(
     title = "Infected Over Time",
     x = "Steps",
     y = "Fraction of Infected",
     color = "People",
     shape = "People"
-  ) +
-  scale_x_continuous(
-    breaks = seq(0, max(summarized_data$step), 100)
   )
 ```
 
@@ -362,14 +370,14 @@ summarized_data |>
     width = 5
   ) +
   geom_line() +
+  scale_x_continuous(
+    breaks = seq(0, max(summarized_data$step), 100)
+  ) +
   labs(
     title = "Infected Over Time",
     x = "Steps",
     y = "Fraction of Infected",
     color = "People",
     shape = "People"
-  ) +
-  scale_x_continuous(
-    breaks = seq(0, max(summarized_data$step), 100)
   )
 ```
