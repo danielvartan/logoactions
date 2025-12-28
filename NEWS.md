@@ -1,4 +1,8 @@
-# v1.3.0.9000 (development version)
+# v1.3.1.9000 (development version)
+
+# v1.3.1 (2025-12-28)
+
+- The project has been renamed from `NetLogo-Actions` to `LogoActions` to align with the naming conventions of other NetLogo-related projects, such as [`LogoLink`](https://github.com/danielvartan/logolink), [`LogoScope`](https://github.com/danielvartan/logoscope), [`LogoClim`](https://github.com/sustentarea/logoclim), [`LogoShapes`](https://github.com/danielvartan/netlogo-shapes), and [`LogoUtils`](https://github.com/danielvartan/netlogo-utils).
 
 # v1.3.0 (2025-12-28)
 
@@ -20,7 +24,7 @@
 
 - `[check-netlogo]` action was added. This action runs all Behaviorspace experiments define in NetLogo models present in a repository and uploads the results as artifacts.
 
-- `NetLogo-Actions` now have a [hex logo](images/logo.svg).
+- `LogoActions` now have a [hex logo](images/logo.svg).
 
 # v1.1.0 (2025-12-03)
 

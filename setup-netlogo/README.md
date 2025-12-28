@@ -1,3 +1,3 @@
 # setup-netlogo
 
-See this repository [README](https://github.com/danielvartan/netlogo-actions#netlogo-actions-) to learn more about this action.
+See this repository [README](https://github.com/danielvartan/logoactions#logoactions-) to learn more about this action.

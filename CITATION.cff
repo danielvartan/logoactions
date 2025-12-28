@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "NetLogo-Actions: GitHub Actions for the NetLogo community"
+title: "LogoActions: GitHub Actions for the NetLogo community"
 message: >-
   If you use this software, please cite it using the metadata from this file.
 type: software
@@ -10,7 +10,7 @@ authors:
     affiliation: University of São Paulo
     orcid: "https://orcid.org/0000-0001-7782-759X"
 abstract: >-
-  NetLogo-Actions is a collection of GitHub Actions designed to facilitate the
+  LogoActions is a collection of GitHub Actions designed to facilitate the
   setup and execution of NetLogo models within GitHub workflows. These actions
   enable researchers and developers to automate the installation of NetLogo,
   run and test simulations, and integrate NetLogo with other tools and
@@ -35,5 +35,5 @@ keywords:
   - Simulations
   - Workflow Automation
   - Test Automation
-repository-code: "https://github.com/danielvartan/netlogo-actions"
+repository-code: "https://github.com/danielvartan/logoactions"
 license: GPLv3

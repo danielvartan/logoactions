@@ -1,16 +1,16 @@
-# NetLogo-Actions <a href = "https://github.com/danielvartan/netlogo-actions"><img src = "images/logo.svg" align="right" width="120" /></a>
+# LogoActions <a href = "https://github.com/danielvartan/logoactions"><img src = "images/logo.svg" align="right" width="120" /></a>
 
 <!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
-[![setup-netlogo](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-setup-netlogo.yaml/badge.svg)](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-setup-netlogo.yaml)
-[![check-netlogo](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-check-netlogo.yaml/badge.svg)](https://github.com/danielvartan/netlogo-actions/actions/workflows/test-check-netlogo.yaml)
+[![setup-netlogo](https://github.com/danielvartan/logoactions/actions/workflows/test-setup-netlogo.yaml/badge.svg)](https://github.com/danielvartan/logoactions/actions/workflows/test-setup-netlogo.yaml)
+[![check-netlogo](https://github.com/danielvartan/logoactions/actions/workflows/test-check-netlogo.yaml/badge.svg)](https://github.com/danielvartan/logoactions/actions/workflows/test-check-netlogo.yaml)
 [![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Contributor Covenant 3.0 Code of Conduct](https://img.shields.io/badge/Contributor%20Covenant-3.0-4baaaa.svg)](https://www.contributor-covenant.org/version/3/0/code_of_conduct/)
 <!-- badges: end -->
 
 ## Overview
 
-`NetLogo-Actions` is a collection of [GitHub Actions](https://docs.github.com/en/actions) designed to facilitate the setup and execution of [NetLogo](https://ccl.northwestern.edu/netlogo/) models within [GitHub workflows](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows). These actions enable researchers and developers to automate the installation of NetLogo, run and test simulations, and integrate NetLogo with other tools and platforms, such as [Quarto](https://quarto.org/), [`logolink`](https://danielvartan.github.io/logolink/) and [`pyNetLogo`](https://pynetlogo.readthedocs.io/en/latest/).
+`LogoActions` is a collection of [GitHub Actions](https://docs.github.com/en/actions) designed to facilitate the setup and execution of [NetLogo](https://ccl.northwestern.edu/netlogo/) models within [GitHub workflows](https://docs.github.com/en/actions/concepts/workflows-and-actions/workflows). These actions enable researchers and developers to automate the installation of NetLogo, run and test simulations, and integrate NetLogo with other tools and platforms, such as [Quarto](https://quarto.org/), [`logolink`](https://danielvartan.github.io/logolink/) and [`pyNetLogo`](https://pynetlogo.readthedocs.io/en/latest/).
 
 Currently, the repository includes:
 
@@ -19,9 +19,9 @@ Currently, the repository includes:
 
 Along with these actions, a series of [workflows examples](.github/workflows) are provided to demonstrate how to use the action in practice. See the [Usage](#usage) section below for more details.
 
-> If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/danielvartan/netlogo-actions)](https://github.com/danielvartan/netlogo-actions/)
+> If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/danielvartan/logoactions)](https://github.com/danielvartan/logoactions/)
 
-> The continuous development of `NetLogo-Actions` depends on community support. If you can afford to do so, please consider becoming a sponsor. &nbsp; [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/danielvartan)
+> The continuous development of `LogoActions` depends on community support. If you can afford to do so, please consider becoming a sponsor. &nbsp; [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/danielvartan)
 
 ## Usage
 
@@ -29,7 +29,7 @@ Along with these actions, a series of [workflows examples](.github/workflows) ar
 
 This workflow shows how to use the [`check-netlogo`](#check-netlogo-reference) action to automatically verify that all [BehaviorSpace](https://docs.netlogo.org/behaviorspace.html) experiments in a repository's NetLogo models run without errors. This is particularly useful for continuous integration ([CI](https://en.wikipedia.org/wiki/Continuous_integration)) workflows, ensuring that any changes to the models or experiments do not introduce issues.
 
-You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions). See the [`LogoClim`](https://github.com/sustentarea/logoclim) model for a real-world example of how this action can catch errors early in the development process.
+You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/logoactions/actions). See the [`LogoClim`](https://github.com/sustentarea/logoclim) model for a real-world example of how this action can catch errors early in the development process.
 
 Below is a basic workflow configuration. To use it, create a file named `check-netlogo.yaml` with the content below and place it in the `.github/workflows` folder at the root of your repository.
 
@@ -52,17 +52,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up NetLogo
-        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+        uses: danielvartan/logoactions/setup-netlogo@v1
 
       - name: Check NetLogo models
-        uses: danielvartan/netlogo-actions/check-netlogo@v1
+        uses: danielvartan/logoactions/check-netlogo@v1
 ```
 
 ### Run BehaviorSpace Experiments
 
 This workflow shows how to set up NetLogo and run [BehaviorSpace](https://docs.netlogo.org/behaviorspace.html) experiments in [headless](https://docs.netlogo.org/behaviorspace.html#running-from-the-command-line) mode. Experiment results are saved as [CSV](https://en.wikipedia.org/wiki/Comma-separated_values) files and uploaded as artifacts for later retrieval. This approach is useful for automating simulation runs, conducting parameter sweeps, or integrating NetLogo experiments into data analysis pipelines.
 
-You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions). The complete workflow file is available [here](.github/workflows/run-experiment.yaml).
+You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/logoactions/actions). The complete workflow file is available [here](.github/workflows/run-experiment.yaml).
 
 Below is a basic workflow configuration.
 
@@ -85,7 +85,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up NetLogo
-        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+        uses: danielvartan/logoactions/setup-netlogo@v1
 
       - name: Create artifacts directory
         run: |
@@ -122,9 +122,9 @@ jobs:
 
 ### Run Experiments with Quarto and `logolink`
 
-This workflow shows how to combine NetLogo with [Quarto](https://quarto.org/) and the [`logolink`](https://danielvartan.github.io/logolink/) R package to run experiments and generate reproducible reports. It installs all required dependencies, renders the Quarto document, and deploys the output to [GitHub Pages](https://docs.github.com/en/pages). An example report is available [here](https://danielvartan.github.io/netlogo-actions/).
+This workflow shows how to combine NetLogo with [Quarto](https://quarto.org/) and the [`logolink`](https://danielvartan.github.io/logolink/) R package to run experiments and generate reproducible reports. It installs all required dependencies, renders the Quarto document, and deploys the output to [GitHub Pages](https://docs.github.com/en/pages). An example report is available [here](https://danielvartan.github.io/logoactions/).
 
-You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions). The complete workflow file is available [here](.github/workflows/run-logolink.yaml).
+You can view this workflow in action on the repository's [actions page](https://github.com/danielvartan/logoactions/actions). The complete workflow file is available [here](.github/workflows/run-logolink.yaml).
 
 Below is a basic workflow configuration.
 
@@ -159,7 +159,7 @@ jobs:
         shell: bash
 
       - name: Set up NetLogo
-        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+        uses: danielvartan/logoactions/setup-netlogo@v1
 
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
@@ -215,7 +215,7 @@ The action can be integrated into your GitHub Actions workflow simply by adding 
 
 ```yaml
 - name: Set up NetLogo
-  uses: danielvartan/netlogo-actions/setup-netlogo@v1
+  uses: danielvartan/logoactions/setup-netlogo@v1
 ```
 
 You must also set the `GH_TOKEN` environment variable to enable authenticated GitHub API requests.
@@ -247,7 +247,7 @@ After the action completes, you can run NetLogo commands in subsequent steps usi
   run: netlogo --headless --version
 ```
 
-You can view `setup-netlogo` in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions).
+You can view `setup-netlogo` in action on the repository's [actions page](https://github.com/danielvartan/logoactions/actions).
 
 ### Inputs
 
@@ -261,7 +261,7 @@ Use the `with` keyword to change the default values. Example:
 
 ```yaml
 - name: Set up NetLogo
-  uses: danielvartan/netlogo-actions/setup-netlogo@v1
+  uses: danielvartan/logoactions/setup-netlogo@v1
   with:
     version: '6.4.0'
     cache: 'false'
@@ -281,7 +281,7 @@ The action can be integrated into your GitHub Actions workflow simply by adding 
 
 ```yaml
 - name: Check NetLogo models
-  uses: danielvartan/netlogo-actions/check-netlogo@v1
+  uses: danielvartan/logoactions/check-netlogo@v1
 ```
 
 Before using `check-netlogo`, ensure you [check out](https://github.com/actions/checkout) the repository and set up NetLogo with the [`setup-netlogo`](#setup-netlogo-reference) action.
@@ -304,7 +304,7 @@ The action test NetLogo models by performing the following tasks:
 
 Note that models with `.nlogo` and `.nlogo3d` extensions are skipped when using NetLogo 7 or higher, as these formats are deprecated in recent versions. Similarly, `.nlogox` and `.nlogox3d` files are skipped when using NetLogo 6 or lower, as these formats are not supported in earlier versions.
 
-You can view `check-netlogo` in action on the repository's [actions page](https://github.com/danielvartan/netlogo-actions/actions).
+You can view `check-netlogo` in action on the repository's [actions page](https://github.com/danielvartan/logoactions/actions).
 
 ### Inputs
 
@@ -317,7 +317,7 @@ Use the `with` keyword to change the default values. Example:
 
 ```yaml
 - name: Check NetLogo models
-  uses: danielvartan/netlogo-actions/check-netlogo@v1
+  uses: danielvartan/logoactions/check-netlogo@v1
   with:
     ignore: 'models/old/**, docs/**'
     artifacts: 'false'
@@ -334,7 +334,7 @@ This action supports only `ubuntu-latest` runners at the moment.
 ```text
 Copyright (C) 2025 Daniel Vartanian
 
-Netlogo-Actions is free software: you can redistribute it and/or modify it
+LogoActions is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
 Software Foundation, either version 3 of the License, or (at your option) any
 later version.
@@ -353,4 +353,4 @@ this program. If not, see <https://www.gnu.org/licenses/>.
 
 Contributions are always welcome! Whether you want to report bugs, suggest new features, or help improve the code or documentation, your input makes a difference.
 
-Before opening a new issue, please check the [issues tab](https://github.com/danielvartan/netlogo-actions/issues) to see if your topic has already been reported.
+Before opening a new issue, please check the [issues tab](https://github.com/danielvartan/logoactions/issues) to see if your topic has already been reported.

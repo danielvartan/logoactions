@@ -5,7 +5,7 @@ description: |
   BehaviorSpace experiments found in those models using the NetLogo headless
   API. It requires the repository to be checked out (via `actions/checkout@v*`)
   and NetLogo to be available on the runner (via
-  `danielvartan/netlogo-actions/setup-netlogo@v*`). Only `ubuntu-latest`
+  `danielvartan/logoactions/setup-netlogo@v*`). Only `ubuntu-latest`
   runners are supported.
 
   The action automatically selects the appropriate file extensions based on the

@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up NetLogo
-        uses: danielvartan/netlogo-actions/setup-netlogo@v1
+        uses: danielvartan/logoactions/setup-netlogo@v1
 
       - name: Check NetLogo models
         uses: ./check-netlogo
