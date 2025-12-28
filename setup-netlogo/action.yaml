@@ -373,7 +373,7 @@ runs:
 
         case ${RUNNER_OS} in
           "Linux")
-            netlogo_binary="$(readlink -f "${NETLOGO_CONSOLE}")"
+            netlogo_binary="${NETLOGO_HOME}/bin/NetLogo"
 
             sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
             sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
