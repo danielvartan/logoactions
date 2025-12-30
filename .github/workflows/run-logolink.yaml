@@ -106,7 +106,6 @@ jobs:
         working-directory: './tests/qmd'
 
       - name: Deploy to GitHub Pages
-        working-directory: './tests/qmd'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           clean: false
