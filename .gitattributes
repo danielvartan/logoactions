@@ -11,6 +11,7 @@
 *.nlogox linguist-language=NetLogo
 *.nlogox3d linguist-language=NetLogo
 *.qmd linguist-language=R
+*.yaml linguist-language=bash
 
 images/* linguist-documentation
 docs/* linguist-documentation
