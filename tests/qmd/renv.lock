@@ -1289,7 +1289,7 @@
     "logolink": {
       "Package": "logolink",
       "Version": "1.0.0.9000",
-      "Source": "unknown",
+      "Source": "GitHub",
       "Title": "An Interface for Running 'NetLogo' Simulations",
       "Authors@R": "c( person( given = \"Daniel\", family = \"Vartanian\", role = c(\"aut\", \"cre\", \"ccp\", \"cph\"), email = \"danielvartan@proton.me\", comment = c(ORCID = \"0000-0001-7782-759X\") ) )",
       "Description": "An interface for 'NetLogo' <https://www.netlogo.org> that enables programmatic setup and execution of simulations. Designed to facilitate integrating 'NetLogo' models into reproducible workflows by creating and running 'BehaviorSpace' experiments and retrieving their results.",
@@ -1338,9 +1338,15 @@
       "Language": "en-US",
       "Roxygen": "list(markdown = TRUE)",
       "RoxygenNote": "7.3.3",
-      "NeedsCompilation": "no",
+      "LazyData": "true",
       "Author": "Daniel Vartanian [aut, cre, ccp, cph] (ORCID: <https://orcid.org/0000-0001-7782-759X>)",
-      "Maintainer": "Daniel Vartanian <danielvartan@proton.me>"
+      "Maintainer": "Daniel Vartanian <danielvartan@proton.me>",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "danielvartan",
+      "RemoteRepo": "logolink",
+      "RemoteRef": "main",
+      "RemoteSha": "aebf730f471881ea29c075d45f6922d6f1851900"
     },
     "lubridate": {
       "Package": "lubridate",
