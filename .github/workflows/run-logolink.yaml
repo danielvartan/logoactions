@@ -62,10 +62,13 @@ jobs:
             echo "exists=false" >> $GITHUB_OUTPUT
           fi
         shell: bash
+        working-directory: './tests/qmd'
 
       - name: Set up renv
         if: steps.renv-check.outputs.exists == 'true'
         uses: r-lib/actions/setup-renv@v2
+        with:
+          working-directory: './tests/qmd'
 
       - name: Install and initialize renv
         if: steps.renv-check.outputs.exists == 'false'
@@ -76,6 +79,7 @@ jobs:
 
           renv::init()
         shell: Rscript {0}
+        working-directory: './tests/qmd'
 
       - name: Install logolink development version
         if: steps.renv-check.outputs.exists == 'false'
@@ -91,19 +95,20 @@ jobs:
 
           renv::snapshot()
         shell: Rscript {0}
+        working-directory: './tests/qmd'
 
       - name: Render Quarto
         run: |
           # Render Quarto
-          cd tests/qmd
 
           quarto render
         shell: bash
+        working-directory: './tests/qmd'
 
       - name: Deploy to GitHub Pages
-        if: github.event_name != 'pull_request'
+        working-directory: './tests/qmd'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           clean: false
           branch: gh-pages
-          folder: docs
+          folder: './tests/qmd/docs'

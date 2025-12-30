@@ -210,14 +210,6 @@ jobs:
           renv::init()
         shell: Rscript {0}
 
-      - name: Set up renv
-        if: steps.renv-check.outputs.exists == 'false'
-        uses: r-lib/actions/setup-renv@v2
-        with:
-          inputs: |
-            cache-version: 0
-            bypass-cache: true
-
       - name: Render Quarto
         run: |
           # Render Quarto
@@ -226,7 +218,6 @@ jobs:
         shell: bash
 
       - name: Deploy to GitHub Pages
-        if: github.event_name != 'pull_request'
         uses: JamesIves/github-pages-deploy-action@v4.5.0
         with:
           clean: false
