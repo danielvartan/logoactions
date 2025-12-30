@@ -92,17 +92,6 @@ jobs:
           renv::snapshot()
         shell: Rscript {0}
 
-      - name: Set up renv
-        if: steps.renv-check.outputs.exists == 'false'
-        uses: r-lib/actions/setup-renv@v2
-        with:
-          inputs: |
-            cache-version: 0
-            bypass-cache: true
-
-      - name: Set up Quarto
-        uses: quarto-dev/quarto-actions/setup@v2
-
       - name: Render Quarto
         run: |
           # Render Quarto
