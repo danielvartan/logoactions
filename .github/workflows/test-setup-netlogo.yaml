@@ -17,10 +17,10 @@ jobs:
           - {os: ubuntu-latest, version: '6.4.0'}
           - {os: ubuntu-latest, version: 'release'}
         cache: ['false', 'true']
-    name: "${{matrix.config.os}} (version: '${{matrix.config.version}}') (cache: '${{matrix.cache}}')"
-    runs-on: ${{matrix.config.os}}
+    name: "${{ matrix.config.os }} (version: '${{ matrix.config.version }}') (cache: '${{ matrix.cache }}')"
+    runs-on: ${{ matrix.config.os }}
     env:
-      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -28,8 +28,8 @@ jobs:
       - name: Set up NetLogo
         uses: ./setup-netlogo
         with:
-          version: ${{matrix.config.version}}
-          cache: ${{matrix.cache}}
+          version: ${{ matrix.config.version }}
+          cache: ${{ matrix.cache }}
 
       - name: Run experiment
         run: |
@@ -48,7 +48,7 @@ jobs:
             --headless \
             --model "${model_path}/${model_file}" \
             --experiment 'Wolf Sheep Crossing' \
-            --table '/tmp/table-output.csv'
+            --table "${RUNNER_TEMP}/table-output.csv"
 
-          cat '/tmp/table-output.csv'
+          cat "${RUNNER_TEMP}/table-output.csv"
         shell: bash

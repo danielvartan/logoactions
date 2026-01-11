@@ -32,11 +32,11 @@ runs:
         # Validate arguments
         # set -x
 
-        if [[ "${{inputs.artifacts}}" != "true" ]] && \
-           [[ "${{inputs.artifacts}}" != "false" ]]; then
+        if [[ "${{ inputs.artifacts }}" != "true" ]] && \
+           [[ "${{ inputs.artifacts }}" != "false" ]]; then
           echo \
             "Error: Invalid artifacts option" \
-            "('${{inputs.artifacts}}')." \
+            "('${{ inputs.artifacts }}')." \
             "Valid options are 'true' or 'false'."
 
           exit 1
@@ -61,7 +61,7 @@ runs:
         # Search for NetLogo models
         # set -x
 
-        ignore_patterns="${{inputs.ignore}}"
+        ignore_patterns="${{ inputs.ignore }}"
         netlogo_version=$(netlogo --headless --version | awk '{print $2}')
 
         if [[ "${netlogo_version}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
@@ -121,7 +121,7 @@ runs:
 
         export JAVA_TOOL_OPTIONS="-Dcom.sun.media.jai.disableMediaLib=true"
 
-        artifacts_dir="${{steps.artifacts-dir.outputs.path}}"
+        artifacts_dir="${{ steps.artifacts-dir.outputs.path }}"
 
         while IFS= read -r model_file; do
           [[ -z "${model_file}" ]] && continue
@@ -161,7 +161,7 @@ runs:
             grep -o '<experiment name="[^"]*"' "${model_file}" \
               | sed 's/<experiment name="//;s/"$//'
           )
-        done <<< "${{steps.netlogo-models.outputs.models}}"
+        done <<< "${{ steps.netlogo-models.outputs.models }}"
 
         shopt -s nullglob
         files=("${artifacts_dir}"/*.csv)
@@ -184,7 +184,7 @@ runs:
         inputs.artifacts != 'false'
       uses: actions/upload-artifact@v4
       with:
-        name: experiments-output-${{runner.os}}
-        path: ${{steps.artifacts-dir.outputs.path}}
+        name: experiments-output-${{ runner.os }}
+        path: ${{ steps.artifacts-dir.outputs.path }}
         retention-days: 90
         if-no-files-found: warn

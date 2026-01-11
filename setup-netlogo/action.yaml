@@ -29,32 +29,32 @@ runs:
         # Validate arguments
         # set -x
 
-        if [[ ! "${{inputs.version}}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]] && \
-           [[ "${{inputs.version}}" != "release" ]]; then
+        if [[ ! "${{ inputs.version }}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]] && \
+           [[ "${{ inputs.version }}" != "release" ]]; then
           echo \
             "Error: Invalid version format" \
-            "('${{inputs.version}}')." \
+            "('${{ inputs.version }}')." \
             "Use semantic versioning (e.g., '7.0.2') or use" \
             "'release' to get the latest stable release."
 
           exit 1
         fi
 
-        if [[ "${{inputs.version}}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+        if [[ "${{ inputs.version }}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
           major_version="${BASH_REMATCH[1]}"
           minor_version="${BASH_REMATCH[2]}"
 
           if (( major_version < 6 )) || \
-             (( major_version == 6 && minor_version < 4 )) ; then
+             (( major_version == 6 && minor_version < 4 )); then
             echo \
               "Error: Unsupported NetLogo version" \
-              "('${{inputs.version}}')." \
+              "('${{ inputs.version }}')." \
               "Only versions equal or greater than 6.4.0 are supported."
 
             exit 1
           fi
 
-          if [[ "${{inputs.version}}" == "6.4.0" ]] &&
+          if [[ "${{ inputs.version }}" == "6.4.0" ]] &&
              [[ "${RUNNER_ARCH}" =~ ^(ARM|ARM64)$ ]]; then
             echo \
               "Error: NetLogo 6.4.0 and earlier versions are not" \
@@ -64,11 +64,11 @@ runs:
           fi
         fi
 
-        if [[ "${{inputs.cache}}" != "true" ]] && \
-           [[ "${{inputs.cache}}" != "false" ]]; then
+        if [[ "${{ inputs.cache }}" != "true" ]] && \
+           [[ "${{ inputs.cache }}" != "false" ]]; then
           echo \
             "Error: Invalid cache option" \
-            "('${{inputs.cache}}')." \
+            "('${{ inputs.cache }}')." \
             "Valid options are 'true' or 'false'."
 
           exit 1
@@ -81,7 +81,7 @@ runs:
         # Get NetLogo version
         # set -x
 
-        if [[ "${{inputs.version}}" == "release" ]]; then
+        if [[ "${{ inputs.version }}" == "release" ]]; then
           version_tag=$( \
             gh api repos/NetLogo/NetLogo/releases/latest -q .tag_name \
           )
@@ -95,7 +95,7 @@ runs:
 
           NETLOGO_VERSION="${version_tag#v}"
         else
-          NETLOGO_VERSION="${{inputs.version}}"
+          NETLOGO_VERSION="${{ inputs.version }}"
         fi
 
         echo "version=${NETLOGO_VERSION}" >> "${GITHUB_OUTPUT}"
@@ -136,8 +136,8 @@ runs:
       if: inputs.cache == 'true'
       uses: actions/cache@v4
       with:
-        path: ${{steps.cache-path.outputs.path}}
-        key: "netlogo-${{steps.netlogo-version.outputs.version}}-${{runner.os}}-${{runner.arch}}"
+        path: ${{ steps.cache-path.outputs.path }}
+        key: "netlogo-${{ steps.netlogo-version.outputs.version }}-${{ runner.os }}-${{ runner.arch }}"
 
     - name: Choose correct bundle for OS type
       id: netlogo-bundle
@@ -210,7 +210,7 @@ runs:
 
         repo="NetLogo/NetLogo"
         tag="v${NETLOGO_VERSION}"
-        extension="${{steps.netlogo-bundle.outputs.extension}}"
+        extension="${{ steps.netlogo-bundle.outputs.extension }}"
 
         gh release download "$tag" \
           --repo "$repo" \
@@ -270,7 +270,7 @@ runs:
         # Install NetLogo
         # set -x
 
-        bundle="${{steps.netlogo-download.outputs.bundle}}"
+        bundle="${{ steps.netlogo-download.outputs.bundle }}"
 
         case ${RUNNER_OS} in
           "Linux")
@@ -364,7 +364,7 @@ runs:
         # Set environment variables
         # set -x
 
-        bundle="${{steps.netlogo-download.outputs.bundle}}"
+        bundle="${{ steps.netlogo-download.outputs.bundle }}"
 
         case ${RUNNER_OS} in
           "Linux" | "macOS")

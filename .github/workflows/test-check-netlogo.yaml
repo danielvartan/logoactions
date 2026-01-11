@@ -14,8 +14,8 @@ jobs:
           - {os: windows-latest, version: 'release'}
           - {os: macos-latest, version: 'release'}
           - {os: ubuntu-latest, version: 'release'}
-    name: "${{matrix.config.os}} (${{matrix.config.version}})"
-    runs-on: ${{matrix.config.os}}
+    name: "${{ matrix.config.os }} (${{ matrix.config.version }})"
+    runs-on: ${{ matrix.config.os }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions: read-all
@@ -26,7 +26,7 @@ jobs:
       - name: Set up NetLogo
         uses: danielvartan/netlogo-actions/setup-netlogo@v1
         with:
-          version: ${{matrix.config.version}}
+          version: ${{ matrix.config.version }}
           cache: 'true'
 
       - name: Check NetLogo models
