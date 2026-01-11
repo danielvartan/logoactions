@@ -1,6 +1,13 @@
-# v1.3.2.9000 (development version)
+# v1.4.1.9000 (development version)
 
-- The software now follow the [FAIR principles](https://www.go-fair.org/fair-principles/).
+# v1.4.0 (2026-01-11)
+
+- `[check-netlogo]` action no longer depends on `ripgrep`.
+- `[check-netlogo]` action now supports macOS and Windows runners in addition to Linux runners.
+- `logolink` CRAN version is now used in workflow examples instead of the GitHub version.
+- All the actions and workflows were reviewed to improve compliance with best practices for GitHub Actions.
+- The software now follows the [FAIR principles](https://www.go-fair.org/fair-principles/).
+- The documentation was updated to reflect the changes above.
 
 # v1.3.2 (2025-12-30)
 

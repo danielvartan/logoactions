@@ -41,7 +41,7 @@ on:
   push:
     branches: [main, master]
 
-name: NetLogo Check
+name: NetLogo check
 permissions: read-all
 
 jobs:
@@ -49,7 +49,7 @@ jobs:
     name: Check NetLogo models
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -82,7 +82,7 @@ jobs:
     name: Run experiments
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -91,20 +91,25 @@ jobs:
         uses: danielvartan/logoactions/setup-netlogo@v1
 
       - name: Create artifacts directory
+        id: artifacts-dir
         run: |
           # Create artifacts directory
 
-          mkdir -p '/tmp/artifacts'
+          artifacts_dir="${RUNNER_TEMP}/artifacts"
+          mkdir -p "${artifacts_dir}"
+
+          echo "path=${artifacts_dir}" >> "${GITHUB_OUTPUT}"
         shell: bash
 
       - name: Run experiment
         run: |
           # Run experiment
 
-          model_dir="$NETLOGO_HOME/models/Sample Models/Biology"
+          artifacts_dir="${{ steps.artifacts-dir.outputs.path }}"
+          model_dir="${NETLOGO_HOME}/models/Sample Models/Biology"
           model_file='Wolf Sheep Predation.nlogox'
           experiment_name='Wolf Sheep Crossing'
-          table_file='/tmp/artifacts/experiment-table.csv'
+          table_file="${artifacts_dir}/experiment-table.csv"
 
           netlogo \
             --headless \
@@ -115,11 +120,11 @@ jobs:
           cat "${table_file}"
         shell: bash
 
-      - name: Upload artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: experiment-output
-          path: '/tmp/artifacts/'
+          name: experiments-output
+          path: ${{ steps.artifacts-dir.outputs.path }}
           retention-days: 90
 ```
 
@@ -144,7 +149,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Run experiments
     env:
-      GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: write
       pages: write
@@ -162,6 +167,7 @@ jobs:
         uses: quarto-dev/quarto-actions/setup@v2
 
       - name: Install system dependencies
+        if: runner.os == 'Linux'
         run: |
           # Install system dependencies
 
@@ -175,6 +181,8 @@ jobs:
       - name: Install R dependencies
         run: |
           # Install R dependencies
+
+          options(repos=c(CRAN="https://cloud.r-project.org"))
 
           install.packages(
             c(
@@ -244,7 +252,7 @@ You must also set the `GH_TOKEN` environment variable to enable authenticated Gi
 
 ```yaml
 env:
-  GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 This will make NetLogo available for use in subsequent steps.
@@ -312,7 +320,7 @@ You must also set the `GH_TOKEN` environment variable to enable authenticated Gi
 
 ```yaml
 env:
-  GH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 ```
 
 ### Functionality
@@ -347,7 +355,7 @@ Use the `with` keyword to change the default values. Example:
 
 ### Supported Platforms
 
-This action supports only `ubuntu-latest` runners at the moment.
+The runners `ubuntu-latest`, `windows-latest`, and `macos-latest` are supported. We recommend using `ubuntu-latest` whenever possible.
 
 ## Citation
 

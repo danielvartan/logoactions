@@ -43,6 +43,8 @@ jobs:
         run: |
           # Install R dependencies
 
+          options(repos=c(CRAN="https://cloud.r-project.org"))
+
           install.packages(
             c(
               "rmarkdown",
@@ -74,8 +76,6 @@ jobs:
         if: steps.renv-check.outputs.exists == 'false'
         run: |
           # Install and initialize renv
-
-          options(repos=c(CRAN="https://cloud.r-project.org"))
 
           install.packages("renv")
 
