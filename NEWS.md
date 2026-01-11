@@ -2,8 +2,8 @@
 
 # v1.4.0 (2026-01-11)
 
-- `[check-netlogo]` action no longer depends on `ripgrep`.
-- `[check-netlogo]` action now supports macOS and Windows runners in addition to Linux runners.
+- `[check-netlogo]` no longer depends on `ripgrep`.
+- `[check-netlogo]` now supports macOS and Windows runners in addition to Linux runners.
 - `logolink` CRAN version is now used in workflow examples instead of the GitHub version.
 - All the actions and workflows were reviewed to improve compliance with best practices for GitHub Actions.
 - The software now follows the [FAIR principles](https://www.go-fair.org/fair-principles/).

@@ -12,6 +12,7 @@
 # # Release the new tag and, them, force the v1 tag to point to it:
 
 # git tag
+# git tag v*.*.*
 # git tag --force v1
 # git push origin v1 --force
 # git tag -d <tagname>

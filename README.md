@@ -17,8 +17,8 @@
 
 Currently, the repository includes:
 
-- [`setup-netlogo`](#setup-netlogo-reference): Installs NetLogo on the runner machine.
-- [`check-netlogo`](#check-netlogo-reference): Runs all BehaviorSpace experiments in a repository's NetLogo models to verify they execute without errors.
+- [`setup-netlogo`](#setup-netlogo-reference): Installs NetLogo on the runner machine
+- [`check-netlogo`](#check-netlogo-reference): Runs all BehaviorSpace experiments in a repository's NetLogo models to verify they execute without errors
 
 Along with these actions, a series of [workflows examples](.github/workflows) are provided to demonstrate how to use the action in practice. See the [Usage](#usage) section below for more details.
 
