@@ -43,34 +43,6 @@ runs:
         fi
       shell: bash
 
-    - name: Install dependencies (Linux)
-      if: runner.os == 'Linux'
-      run: |
-        # Install dependencies (Linux)
-        # set -x
-
-        sudo apt-get update -qq >/dev/null
-        sudo apt-get install -y -qq ripgrep >/dev/null
-      shell: bash
-
-    - name: Install dependencies (macOS)
-      if: runner.os == 'macOS'
-      run: |
-        # Install dependencies (macOS)
-        # set -x
-
-        brew install ripgrep
-      shell: bash
-
-    - name: Install dependencies (Windows)
-      if: runner.os == 'Windows'
-      run: |
-        # Install dependencies (Windows)
-        # set -x
-
-        choco install ripgrep -y
-      shell: pwsh
-
     - name: Create artifacts directory
       id: artifacts-dir
       run: |
@@ -185,7 +157,10 @@ runs:
               --experiment "${experiment_name}" \
               --table "${output_file}" \
               2> >(grep -v "Could not find mediaLib accelerator")
-          done < <(rg -oP '(?<=<experiment name=")[^"]+' "${model_file}")
+          done < <(
+            grep -o '<experiment name="[^"]*"' "${model_file}" \
+              | sed 's/<experiment name="//;s/"$//'
+          )
         done <<< "${{steps.netlogo-models.outputs.models}}"
 
         shopt -s nullglob
