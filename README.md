@@ -213,6 +213,8 @@ jobs:
         run: |
           # Install and initialize renv
 
+          options(repos=c(CRAN="https://cloud.r-project.org"))
+
           install.packages("renv")
 
           renv::init()
@@ -399,7 +401,7 @@ donation. Please mention `LogoActions` in your donation message.
 [![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ```text
-Copyright (C) 2025 Daniel Vartanian
+Copyright (C) 2026 Daniel Vartanian
 
 LogoActions is free software: you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the Free
