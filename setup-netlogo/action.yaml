@@ -114,7 +114,7 @@ runs:
             cache_path="/opt/NetLogo ${NETLOGO_VERSION}"
             ;;
           "macOS")
-            cache_path="/Applications/NetLogo ${NETLOGO_VERSION}.app"
+            cache_path="/Applications/NetLogo ${NETLOGO_VERSION}"
             ;;
           "Windows")
             case ${RUNNER_ARCH} in
