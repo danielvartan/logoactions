@@ -1,3 +1,5 @@
+# v1.4.2.9000 (development version)
+
 # v1.4.1 (2026-05-12)
 
 - `[setup-netlogo]` fixed symlink creation on macOS runners.
