@@ -34,7 +34,7 @@ runs:
           echo \
             "Error: Invalid version format" \
             "('${{ inputs.version }}')." \
-            "Use semantic versioning (e.g., '7.0.2') or use" \
+            "Use semantic versioning (e.g., '7.0.4') or use" \
             "'release' to get the latest stable release."
 
           exit 1
@@ -397,7 +397,7 @@ runs:
             sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
             ;;
           "macOS")
-            netlogo_binary="${NETLOGO_HOME}/NetLogo 7.0.3.app/Contents/MacOS/NetLogo 7.0.3"
+            netlogo_binary="${NETLOGO_HOME}/NetLogo ${NETLOGO_VERSION}.app/Contents/MacOS/NetLogo ${NETLOGO_VERSION}"
 
             sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
             sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
