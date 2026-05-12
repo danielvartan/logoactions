@@ -1,4 +1,7 @@
-# v1.4.1.9000 (development version)
+# v1.4.1 (2026-05-12)
+
+- `[setup-netlogo]` fixed symlink creation on macOS runners.
+- `[setup-netlogo]` fixed cache directory handling on macOS runners.
 
 # v1.4.0 (2026-01-11)
 

@@ -367,7 +367,7 @@ If you use `LogoActions` in your work, please cite it to acknowledge the effort 
 
 To cite `LogoActions` in publications please use the following format:
 
-Vartanian, D. (n.d.). *LogoActions: GitHub Actions for the NetLogo community* [Computer software]. <https://doi.org/10.5281/zenodo.18102378>
+Vartanian, D. (2026). *LogoActions: GitHub Actions for the NetLogo community* [Computer software]. <https://doi.org/10.5281/zenodo.18102378>
 
 A BibLaTeX entry for LaTeX users is:
 
@@ -375,6 +375,7 @@ A BibLaTeX entry for LaTeX users is:
 @software{vartanian,
   title = {LogoActions: GitHub Actions for the NetLogo community},
   author = {Daniel Vartanian},
+  year = {2026},
   doi = {10.5281/zenodo.18102378},
   note = {Computer software}
 }
