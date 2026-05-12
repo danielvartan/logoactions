@@ -1,6 +1,5 @@
 on:
   push:
-    branches: [main, master]
 
 name: "setup-netlogo" # Do not change!
 permissions: read-all
@@ -11,11 +10,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - {os: windows-latest, version: '6.4.0'}
-          - {os: windows-latest, version: 'release'}
+          # - {os: windows-latest, version: '6.4.0'}
+          # - {os: windows-latest, version: 'release'}
           - {os: macos-latest, version: 'release'}
-          - {os: ubuntu-latest, version: '6.4.0'}
-          - {os: ubuntu-latest, version: 'release'}
+          # - {os: ubuntu-latest, version: '6.4.0'}
+          # - {os: ubuntu-latest, version: 'release'}
         cache: ['false', 'true']
     name: "${{ matrix.config.os }} (version: '${{ matrix.config.version }}') (cache: '${{ matrix.cache }}')"
     runs-on: ${{ matrix.config.os }}
