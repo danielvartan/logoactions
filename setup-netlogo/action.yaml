@@ -400,9 +400,15 @@ runs:
 
             behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
 
+            # `behaviorsearch_headless.sh` uses dirname `"$0"` to locate its
+            # JARs, so a symlink would make it navigate to the wrong directory.
+            # A wrapper script ensures $0 resolves to the real script path.
             if [[ -f "${behaviorsearch_binary}" ]]; then
-              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/BehaviorSearch"
-              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/behaviorsearch"
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
+                | sudo tee /usr/local/bin/behaviorsearch > /dev/null
+
+              sudo chmod +x /usr/local/bin/behaviorsearch
+              sudo ln -sf /usr/local/bin/behaviorsearch /usr/local/bin/BehaviorSearch
             fi
             ;;
           "macOS")
@@ -415,9 +421,14 @@ runs:
 
             behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
 
+            # Same wrapper pattern as Linux: avoids dirname `"$0"` resolving to
+            # the symlink's directory instead of the real script's directory.
             if [[ -f "${behaviorsearch_binary}" ]]; then
-              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/BehaviorSearch"
-              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/behaviorsearch"
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
+                | sudo tee /usr/local/bin/behaviorsearch > /dev/null
+
+              sudo chmod +x /usr/local/bin/behaviorsearch
+              sudo ln -sf /usr/local/bin/behaviorsearch /usr/local/bin/BehaviorSearch
             fi
             ;;
           "Windows")
@@ -467,5 +478,5 @@ runs:
       run: |
         # Test BehaviorSearch installation
 
-        behaviorsearch
+        behaviorsearch --version
       shell: bash
