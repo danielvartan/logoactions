@@ -393,29 +393,79 @@ runs:
           "Linux")
             netlogo_binary="${NETLOGO_HOME}/bin/NetLogo"
 
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            if [[ -f "${netlogo_binary}" ]]; then
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            fi
+
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/BehaviorSearch"
+              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/behaviorsearch"
+            fi
             ;;
           "macOS")
             netlogo_binary="${NETLOGO_HOME}/NetLogo ${NETLOGO_VERSION}.app/Contents/MacOS/NetLogo ${NETLOGO_VERSION}"
 
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            if [[ -f "${netlogo_binary}" ]]; then
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            fi
+
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/BehaviorSearch"
+              sudo ln -sf "${behaviorsearch_binary}" "/usr/local/bin/behaviorsearch"
+            fi
             ;;
           "Windows")
-            symlink_target=$(cygpath -w "${NETLOGO_HOME}/NetLogo.exe")
-
             # On Windows, creating one link allows you to call either name
             # from the CLI.
-            cmd //c mklink \
-              "C:\Windows\System32\NetLogo.exe" \
-              "${symlink_target}"
+            netlogo_binary="${NETLOGO_HOME}/NetLogo.exe"
+
+            if [[ -f "${netlogo_binary}" ]]; then
+              cmd //c mklink \
+                "C:\Windows\System32\NetLogo.exe" \
+                "$(cygpath -w "${netlogo_binary}")"
+            fi
+
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              cmd //c mklink \
+                "C:\Windows\System32\behaviorsearch.bat" \
+                "$(cygpath -w "${behaviorsearch_binary}")"
+            fi
             ;;
         esac
+
+        if ! [[ -f "${netlogo_binary}" ]]; then
+          echo \
+            "Error: NetLogo console binary not found at expected location."
+
+          exit 1
+        fi
+
+        if ! [[ -f "${behaviorsearch_binary}" ]]; then
+          echo \
+            "Error: BehaviorSearch binary not found at expected location."
+
+          exit 1
+        fi
       shell: bash
 
     - name: Test NetLogo installation
       run: |
         # Test NetLogo installation
+
         netlogo --headless --version
+      shell: bash
+
+    - name: Test BehaviorSearch installation
+      run: |
+        # Test BehaviorSearch installation
+
+        behaviorsearch
       shell: bash
