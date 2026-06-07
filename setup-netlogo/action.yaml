@@ -491,16 +491,17 @@ runs:
             behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
 
             if [[ -f "${behaviorsearch_binary}" ]]; then
-              # Bash wrapper in NETLOGO_HOME (already in PATH) for bash callers.
+              # Bash wrapper in System32 for bash callers.
               printf '#!/bin/bash\ncmd //c "%s" "$@"\n' \
                 "$(cygpath -w "${behaviorsearch_binary}")" \
-                > "${NETLOGO_HOME}/behaviorsearch"
-              chmod +x "${NETLOGO_HOME}/behaviorsearch"
+                > "C:/Windows/System32/behaviorsearch"
+              chmod +x "C:/Windows/System32/behaviorsearch"
 
-              # .bat symlink in System32 for cmd callers.
+              # `.bat` symlink in System32 for cmd callers.
               cmd //c mklink \
                 "C:\Windows\System32\behaviorsearch.bat" \
                 "$(cygpath -w "${behaviorsearch_binary}")"
+
             fi
             ;;
         esac
