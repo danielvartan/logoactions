@@ -268,8 +268,8 @@ The action sets up a NetLogo environment by performing the following tasks:
   - `NETLOGO_CONSOLE`: Console executable path.
   - `NETLOGO_VERSION`: Installed version (e.g., `7.0.4`).
 4. Add `NETLOGO_HOME` to `PATH`.
-5. Create `netlogo` and `NetLogo` symlinks pointing to `NetLogo_Console`.
-6. Create `behaviorsearch` and `BehaviorSearch` symlinks pointing to `behaviorsearch_headless.sh`, enabling the use of [BehaviorSearch](https://www.behaviorsearch.org/) in headless mode.
+5. Create `netlogo` and `NetLogo` links pointing to the NetLogo executable.
+6. Create a `behaviorsearch` command (and a `BehaviorSearch` alias on Linux) that invokes the platform's `behaviorsearch_headless` script, enabling the use of [BehaviorSearch](https://www.behaviorsearch.org/) in headless mode.
 
 After the action completes, you can run NetLogo and BehaviorSearch commands in subsequent steps using `netlogo` and `behaviorsearch`:
 
