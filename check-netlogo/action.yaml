@@ -182,7 +182,7 @@ runs:
         steps.netlogo-models.outputs.found == 'true' &&
         steps.netlogo-experiments.outputs.found == 'true' &&
         inputs.artifacts != 'false'
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: experiments-output-${{ runner.os }}
         path: ${{ steps.artifacts-dir.outputs.path }}
