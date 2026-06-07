@@ -3,6 +3,7 @@
 - Updated documentation.
 - `[setup-netlogo]` now supports [BehaviorSearch](https://www.behaviorsearch.org/).
 - `[setup-netlogo]` now adds a `behaviorsearch` command (and a `BehaviorSearch` alias on Linux), so you can run it in headless mode by calling `behaviorsearch`.
+- `[setup-netlogo]` now uses `netlogo-headless.sh` instead of `NetLogo_Console` to run NetLogo in headless mode.
 
 # v1.4.1 (2026-05-12)
 
