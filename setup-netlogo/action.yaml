@@ -431,19 +431,16 @@ runs:
               # All shipped versions gather jars from `.` (NETLOGO_HOME
               # after `cd ..`) but build classpath entries from
               # LIBRARY_DIR (NETLOGO_HOME\app), so the loop finds nothing
-              # and the JVM throws ClassNotFoundException. Make it
-              # enumerate from LIBRARY_DIR directly. Quoting is required
-              # because LIBRARY_DIR contains spaces (e.g. "Program
-              # Files"); an unquoted `for` set is split on whitespace.
+              # and the JVM throws ClassNotFoundException. `for %%f in
+              # (...)` treats quotes as literal characters rather than
+              # grouping, so a quoted "%LIBRARY_DIR%\*.jar" pattern can't
+              # be used to dodge the spaces in "Program Files" either.
+              # Instead, `cd` into `app` (a short, space-free relative
+              # name) and enumerate the bare `*.jar` pattern there; the
+              # existing `%LIBRARY_DIR%\%%f` concatenation on the next
+              # line then yields the correct full path.
               sed -i \
-                's|for %%f in (\.\\\*\.jar) do (|for %%f in ("%LIBRARY_DIR%\\*.jar") do (|' \
-                "${behaviorsearch_binary}"
-
-              # Enumerating from LIBRARY_DIR (above) makes %%f expand to
-              # each jar's full path already, so the LIBRARY_DIR\ prefix
-              # here would double up the path and break the classpath.
-              sed -i \
-                's|set JARS=%LIBRARY_DIR%\\%%f;!JARS!|set JARS=%%f;!JARS!|' \
+                's|for %%f in (\.\\\*\.jar) do (|cd app \& for %%f in (*.jar) do (|' \
                 "${behaviorsearch_binary}"
 
               echo "--- Patched behaviorsearch_headless.bat (relevant lines) ---"
