@@ -432,9 +432,11 @@ runs:
               # after `cd ..`) but build classpath entries from
               # LIBRARY_DIR (NETLOGO_HOME\app), so the loop finds nothing
               # and the JVM throws ClassNotFoundException. Make it
-              # enumerate from LIBRARY_DIR directly.
+              # enumerate from LIBRARY_DIR directly. Quoting is required
+              # because LIBRARY_DIR contains spaces (e.g. "Program
+              # Files"); an unquoted `for` set is split on whitespace.
               sed -i \
-                's|for %%f in (\.\\\*\.jar) do (|for %%f in (%LIBRARY_DIR%\\*.jar) do (|' \
+                's|for %%f in (\.\\\*\.jar) do (|for %%f in ("%LIBRARY_DIR%\\*.jar") do (|' \
                 "${behaviorsearch_binary}"
 
               # Enumerating from LIBRARY_DIR (above) makes %%f expand to
