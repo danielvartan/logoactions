@@ -484,6 +484,11 @@ runs:
             # BASH_SOURCE resolves to the real script path, same as the
             # `behaviorsearch_headless.sh` fix below.
             if [[ -f "${netlogo_headless}" ]]; then
+              # The bundle ships this script without the executable bit
+              # set, so `exec` from the wrapper fails with
+              # "Permission denied".
+              sudo chmod +x "${netlogo_headless}"
+
               printf '#!/bin/bash\nexec "%s" "$@"\n' "${netlogo_headless}" \
                 | sudo tee /usr/local/bin/netlogo > /dev/null
 
@@ -513,6 +518,11 @@ runs:
             # symlink between them would make ln -sf overwrite the freshly
             # created wrapper with a self-referential (broken) symlink.
             if [[ -f "${netlogo_headless}" ]]; then
+              # The bundle ships this script without the executable bit
+              # set, so `exec` from the wrapper fails with
+              # "Permission denied".
+              sudo chmod +x "${netlogo_headless}"
+
               printf '#!/bin/bash\nexec "%s" "$@"\n' "${netlogo_headless}" \
                 | sudo tee /usr/local/bin/netlogo > /dev/null
 
