@@ -464,22 +464,6 @@ runs:
               sed -i \
                 's|for %%f in (\.\\\*\.jar) do (|cd /d "%LIBRARY_DIR%"\nfor %%f in (*.jar) do (|' \
                 "${behaviorsearch_binary}"
-
-              # TEMPORARY: turn on command echoing so the run log shows
-              # each command and its expanded form, to confirm the fix
-              # (or pinpoint the next issue if any remains).
-              sed -i \
-                's|@echo off|@echo on|' \
-                "${behaviorsearch_binary}"
-
-              echo "--- Patched behaviorsearch_headless.bat (relevant lines) ---"
-              grep -n -i \
-                -e "cd /d" \
-                -e "LIBRARY_DIR" \
-                -e "for %%f" \
-                -e "JARS" \
-                "${behaviorsearch_binary}"
-              echo "-------------------------------------------------------------"
             fi
             ;;
         esac
