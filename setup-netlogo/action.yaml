@@ -384,6 +384,53 @@ runs:
         echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
       shell: bash
 
+    - name: Fix BehaviorSearch headless script
+      run: |
+        # Fix BehaviorSearch headless script
+        # set -x
+
+        # NetLogo 6.4.0 ships stale headless scripts whose library directory
+        # points to NETLOGO_HOME directly instead of its `app`/`lib/app`
+        # subfolder, where the JARs actually live, causing a
+        # ClassNotFoundException at runtime. The patterns below only match
+        # that stale form, so patching is a no-op on versions that already
+        # point to the correct subfolder.
+
+        case ${RUNNER_OS} in
+          "Linux")
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              sudo sed -i \
+                's|LIBRARY_DIR="`pwd`"|LIBRARY_DIR="`pwd`/lib/app"|' \
+                "${behaviorsearch_binary}"
+            fi
+            ;;
+          "macOS")
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              # macOS ships BSD sed, which requires an explicit
+              # (here, empty) backup suffix for -i.
+              sudo sed -i '' \
+                's|LIBRARY_DIR="`pwd`"|LIBRARY_DIR="`pwd`/lib/app"|' \
+                "${behaviorsearch_binary}"
+            fi
+            ;;
+          "Windows")
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
+
+            # Matches `set LIBRARY_DIR=%cd%` only when not already followed
+            # by a backslash (i.e., not the already-correct `%cd%\app` form).
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              sed -i \
+                's|set LIBRARY_DIR=%cd%\([^\\]\)|set LIBRARY_DIR=%cd%\\app\1|' \
+                "${behaviorsearch_binary}"
+            fi
+            ;;
+        esac
+      shell: bash
+
     - name: Create symbolic links
       run: |
         # Create symbolic links
