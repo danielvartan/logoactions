@@ -421,42 +421,27 @@ runs:
             behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
 
             if [[ -f "${behaviorsearch_binary}" ]]; then
+              # `cd %BSEARCH_DIR%` (plain `cd`, not `cd /d`) cannot
+              # switch drives on Windows -- it only updates the
+              # remembered directory for that drive, leaving the
+              # active drive/cwd unchanged. GitHub Actions' Windows
+              # runners invoke this script from the workspace on
+              # drive D: while NetLogo is installed on drive C:, so
+              # the script never actually reaches its own folder:
+              # every path computed downstream (LIBRARY_DIR, JARS,
+              # the classpath) is wrong, and the JVM throws
+              # ClassNotFoundException. `cd /d` switches both the
+              # drive and the directory, fixing this at the source.
+              sed -i \
+                's|cd %BSEARCH_DIR%|cd /d %BSEARCH_DIR%|' \
+                "${behaviorsearch_binary}"
+
               # Matches `set LIBRARY_DIR=%cd%` only when not already
               # followed by a backslash (i.e., not the already-correct
               # `%cd%\app` form).
               sed -i \
                 's|set LIBRARY_DIR=%cd%\([^\\]\)|set LIBRARY_DIR=%cd%\\app\1|' \
                 "${behaviorsearch_binary}"
-
-              # All shipped versions gather jars from `.` (NETLOGO_HOME
-              # after `cd ..`) but build classpath entries from
-              # LIBRARY_DIR (NETLOGO_HOME\app), so the loop finds nothing
-              # and the JVM throws ClassNotFoundException. `for %%f in
-              # (...)` treats quotes as literal characters rather than
-              # grouping, so a quoted "%LIBRARY_DIR%\*.jar" pattern can't
-              # be used to dodge the spaces in "Program Files" either.
-              # Instead, `cd /d` into LIBRARY_DIR on its own line and
-              # enumerate the bare `*.jar` pattern there; the existing
-              # `%LIBRARY_DIR%\%%f` concatenation on the next line then
-              # yields the correct full path.
-              sed -i \
-                's|for %%f in (\.\\\*\.jar) do (|cd /d "%LIBRARY_DIR%"\nfor %%f in (*.jar) do (|' \
-                "${behaviorsearch_binary}"
-
-              # TEMPORARY: turn on command echoing so the run log shows
-              # each command and its expanded form, to pinpoint exactly
-              # which line throws "system cannot find the path specified".
-              sed -i \
-                's|@echo off|@echo on|' \
-                "${behaviorsearch_binary}"
-
-              echo "--- Patched behaviorsearch_headless.bat (relevant lines) ---"
-              grep -n -i \
-                -e "LIBRARY_DIR" \
-                -e "for %%f" \
-                -e "JARS" \
-                "${behaviorsearch_binary}"
-              echo "-------------------------------------------------------------"
             fi
             ;;
         esac
