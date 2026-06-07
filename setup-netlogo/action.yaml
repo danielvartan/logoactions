@@ -398,29 +398,29 @@ runs:
 
         case ${RUNNER_OS} in
           "Linux")
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+            behaviorsearch_headless="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
 
-            if [[ -f "${behaviorsearch_binary}" ]]; then
+            if [[ -f "${behaviorsearch_headless}" ]]; then
               sudo sed -i \
                 's|LIBRARY_DIR="`pwd`"|LIBRARY_DIR="`pwd`/lib/app"|' \
-                "${behaviorsearch_binary}"
+                "${behaviorsearch_headless}"
             fi
             ;;
           "macOS")
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
+            behaviorsearch_headless="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
 
-            if [[ -f "${behaviorsearch_binary}" ]]; then
+            if [[ -f "${behaviorsearch_headless}" ]]; then
               # macOS ships BSD sed, which requires an explicit
               # (here, empty) backup suffix for -i.
               sudo sed -i '' \
                 's|LIBRARY_DIR="`pwd`"|LIBRARY_DIR="`pwd`/lib/app"|' \
-                "${behaviorsearch_binary}"
+                "${behaviorsearch_headless}"
             fi
             ;;
           "Windows")
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
+            behaviorsearch_headless="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
 
-            if [[ -f "${behaviorsearch_binary}" ]]; then
+            if [[ -f "${behaviorsearch_headless}" ]]; then
               # `cd %BSEARCH_DIR%` (plain `cd`, not `cd /d`) cannot
               # switch drives on Windows -- it only updates the
               # remembered directory for that drive, leaving the
@@ -434,7 +434,7 @@ runs:
               # drive and the directory, fixing this at the source.
               sed -i \
                 's|cd %BSEARCH_DIR%|cd /d %BSEARCH_DIR%|' \
-                "${behaviorsearch_binary}"
+                "${behaviorsearch_headless}"
 
               # Matches `set LIBRARY_DIR=%cd%` only when `%cd%` is the
               # last thing on the line (older versions, e.g. 6.4.0,
@@ -444,7 +444,7 @@ runs:
               # versions (e.g. 7.0.4).
               sed -i \
                 's|set LIBRARY_DIR=%cd%$|set LIBRARY_DIR=%cd%\\app|' \
-                "${behaviorsearch_binary}"
+                "${behaviorsearch_headless}"
 
               # All shipped versions gather jars from `.` (NETLOGO_HOME,
               # the cwd after `cd ..`) but the actual jars -- including
@@ -463,7 +463,7 @@ runs:
               # yields the correct full path.
               sed -i \
                 's|for %%f in (\.\\\*\.jar) do (|cd /d "%LIBRARY_DIR%"\nfor %%f in (*.jar) do (|' \
-                "${behaviorsearch_binary}"
+                "${behaviorsearch_headless}"
             fi
             ;;
         esac
@@ -476,20 +476,33 @@ runs:
 
         case ${RUNNER_OS} in
           "Linux")
-            netlogo_binary="${NETLOGO_HOME}/bin/NetLogo"
+            netlogo_headless="${NETLOGO_HOME}/netlogo-headless.sh"
 
-            if [[ -f "${netlogo_binary}" ]]; then
-              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
-              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            # `netlogo-headless.sh` derives BASE_DIR from
+            # `dirname "${BASH_SOURCE[0]}"`, so a symlink would make it
+            # navigate to the wrong directory. A wrapper script ensures
+            # BASH_SOURCE resolves to the real script path, same as the
+            # `behaviorsearch_headless.sh` fix below.
+            if [[ -f "${netlogo_headless}" ]]; then
+              # The bundle ships this script without the executable bit
+              # set, so `exec` from the wrapper fails with
+              # "Permission denied".
+              sudo chmod +x "${netlogo_headless}"
+
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${netlogo_headless}" \
+                | sudo tee /usr/local/bin/netlogo > /dev/null
+
+              sudo chmod +x /usr/local/bin/netlogo
+              sudo ln -sf /usr/local/bin/netlogo /usr/local/bin/NetLogo
             fi
 
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+            behaviorsearch_headless="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
 
             # `behaviorsearch_headless.sh` uses dirname `"$0"` to locate its
             # JARs, so a symlink would make it navigate to the wrong directory.
             # A wrapper script ensures $0 resolves to the real script path.
-            if [[ -f "${behaviorsearch_binary}" ]]; then
-              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
+            if [[ -f "${behaviorsearch_headless}" ]]; then
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_headless}" \
                 | sudo tee /usr/local/bin/behaviorsearch > /dev/null
 
               sudo chmod +x /usr/local/bin/behaviorsearch
@@ -497,14 +510,26 @@ runs:
             fi
             ;;
           "macOS")
-            netlogo_binary="${NETLOGO_HOME}/NetLogo ${NETLOGO_VERSION}.app/Contents/MacOS/NetLogo ${NETLOGO_VERSION}"
+            netlogo_headless="${NETLOGO_HOME}/netlogo-headless.sh"
 
-            if [[ -f "${netlogo_binary}" ]]; then
-              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
-              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            # Same wrapper pattern as Linux, minus the NetLogo symlink:
+            # macOS's default filesystem (APFS) is case-insensitive, so
+            # "NetLogo" and "netlogo" already resolve to the same path. A
+            # symlink between them would make ln -sf overwrite the freshly
+            # created wrapper with a self-referential (broken) symlink.
+            if [[ -f "${netlogo_headless}" ]]; then
+              # The bundle ships this script without the executable bit
+              # set, so `exec` from the wrapper fails with
+              # "Permission denied".
+              sudo chmod +x "${netlogo_headless}"
+
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${netlogo_headless}" \
+                | sudo tee /usr/local/bin/netlogo > /dev/null
+
+              sudo chmod +x /usr/local/bin/netlogo
             fi
 
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
+            behaviorsearch_headless="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
 
             # Same wrapper pattern as Linux, minus the BehaviorSearch symlink:
             # macOS's default filesystem (APFS) is case-insensitive, so
@@ -512,58 +537,72 @@ runs:
             # same path. A symlink between them would make ln -sf overwrite
             # the freshly created wrapper with a self-referential (broken)
             # symlink.
-            if [[ -f "${behaviorsearch_binary}" ]]; then
-              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
+            if [[ -f "${behaviorsearch_headless}" ]]; then
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_headless}" \
                 | sudo tee /usr/local/bin/behaviorsearch > /dev/null
 
               sudo chmod +x /usr/local/bin/behaviorsearch
             fi
             ;;
           "Windows")
-            # Windows default filesystem is case-insensitive. Creating one
-            # link allows you to call either name from the CLI.
-            netlogo_binary="${NETLOGO_HOME}/NetLogo.exe"
+            netlogo_headless="${NETLOGO_HOME}/netlogo-headless.bat"
 
-            if [[ -f "${netlogo_binary}" ]]; then
-              cmd //c mklink \
-                "C:\Windows\System32\NetLogo.exe" \
-                "$(cygpath -w "${netlogo_binary}")"
+            # `netlogo-headless.bat` locates its own folder via `%~dp0`,
+            # which resolves to the path used to invoke it. A symlink would
+            # make it resolve to the symlink's location (the same problem
+            # `dirname "$0"`/`BASH_SOURCE` caused on Linux/macOS), so both
+            # callers get a wrapper that invokes the real full path. Windows
+            # default filesystem is case-insensitive, so one wrapper covers
+            # both "NetLogo" and "netlogo".
+            if [[ -f "${netlogo_headless}" ]]; then
+              netlogo_headless_win="$(cygpath -w "${netlogo_headless}")"
+
+              # Bash wrapper in System32 for bash callers.
+              printf '#!/bin/bash\ncmd //c "%s" "$@"\n' \
+                "${netlogo_headless_win}" \
+                > "C:/Windows/System32/netlogo"
+              chmod +x "C:/Windows/System32/netlogo"
+
+              # `.bat` wrapper in System32 for cmd callers.
+              printf '@echo off\r\ncall "%s" %%*\r\n' \
+                "${netlogo_headless_win}" \
+                > "C:/Windows/System32/netlogo.bat"
             fi
 
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
+            behaviorsearch_headless="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
 
             # `behaviorsearch_headless.bat` locates its own folder via
             # `%~dp0`, which resolves to the path used to invoke it. A
             # symlink would make it resolve to the symlink's location
             # (the same problem `dirname "$0"` caused on Linux/macOS), so
             # both callers get a wrapper that invokes the real full path.
-            if [[ -f "${behaviorsearch_binary}" ]]; then
-              behaviorsearch_win="$(cygpath -w "${behaviorsearch_binary}")"
+            if [[ -f "${behaviorsearch_headless}" ]]; then
+              behaviorsearch_headless_win="$(cygpath -w "${behaviorsearch_headless}")"
 
               # Bash wrapper in System32 for bash callers.
               printf '#!/bin/bash\ncmd //c "%s" "$@"\n' \
-                "${behaviorsearch_win}" \
+                "${behaviorsearch_headless_win}" \
                 > "C:/Windows/System32/behaviorsearch"
               chmod +x "C:/Windows/System32/behaviorsearch"
 
               # `.bat` wrapper in System32 for cmd callers.
               printf '@echo off\r\ncall "%s" %%*\r\n' \
-                "${behaviorsearch_win}" \
+                "${behaviorsearch_headless_win}" \
                 > "C:/Windows/System32/behaviorsearch.bat"
             fi
             ;;
         esac
 
-        if ! [[ -f "${netlogo_binary}" ]]; then
+        if ! [[ -f "${netlogo_headless}" ]]; then
           echo \
-            "Error: NetLogo binary not found at expected location."
+            "Error: NetLogo headless script not found at expected location."
 
           exit 1
         fi
 
-        if ! [[ -f "${behaviorsearch_binary}" ]]; then
+        if ! [[ -f "${behaviorsearch_headless}" ]]; then
           echo \
-            "Error: BehaviorSearch binary not found at expected location."
+            "Error: BehaviorSearch headless script not found at expected location."
 
           exit 1
         fi
