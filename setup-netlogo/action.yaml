@@ -435,12 +435,12 @@ runs:
               # (...)` treats quotes as literal characters rather than
               # grouping, so a quoted "%LIBRARY_DIR%\*.jar" pattern can't
               # be used to dodge the spaces in "Program Files" either.
-              # Instead, `cd` into `app` (a short, space-free relative
-              # name) and enumerate the bare `*.jar` pattern there; the
-              # existing `%LIBRARY_DIR%\%%f` concatenation on the next
-              # line then yields the correct full path.
+              # Instead, `cd /d` into LIBRARY_DIR on its own line and
+              # enumerate the bare `*.jar` pattern there; the existing
+              # `%LIBRARY_DIR%\%%f` concatenation on the next line then
+              # yields the correct full path.
               sed -i \
-                's|for %%f in (\.\\\*\.jar) do (|cd app \& for %%f in (*.jar) do (|' \
+                's|for %%f in (\.\\\*\.jar) do (|cd /d "%LIBRARY_DIR%"\nfor %%f in (*.jar) do (|' \
                 "${behaviorsearch_binary}"
 
               echo "--- Patched behaviorsearch_headless.bat (relevant lines) ---"
