@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master, update/github-actions]
+    branches: [main, master]
 
 name: run-logolink.yaml
 permissions: read-all

@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master, update/github-actions]
+    branches: [main, master]
 
 name: "check-netlogo" # Do not change!
 permissions: read-all

@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [main, master, update/github-actions]
+    branches: [main, master]
 
 name: run-experiment.yaml
 permissions: read-all
