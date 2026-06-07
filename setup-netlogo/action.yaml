@@ -466,10 +466,9 @@ runs:
               sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
             fi
 
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
 
-            # Same wrapper pattern as Linux: avoids dirname `"$0"` resolving to
-            # the symlink's directory instead of the real script's directory.
+            # Same wrapper pattern as Linux.
             if [[ -f "${behaviorsearch_binary}" ]]; then
               printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
                 | sudo tee /usr/local/bin/behaviorsearch > /dev/null
