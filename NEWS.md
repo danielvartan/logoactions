@@ -1,5 +1,8 @@
 # v1.4.2.9000 (development version)
 
+- `[setup-netlogo]` added [BehaviorSearch](https://www.behaviorsearch.org/) support.
+- `[setup-netlogo]` added [BehaviorSearch](https://www.behaviorsearch.org/) symlinks. You can now use it in headless mode calling `behaviorsearch`.
+
 # v1.4.1 (2026-05-12)
 
 - `[setup-netlogo]` fixed symlink creation on macOS runners.

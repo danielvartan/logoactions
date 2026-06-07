@@ -494,18 +494,29 @@ runs:
 
             behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
 
+            # `behaviorsearch_headless.bat` assumes its working directory
+            # is already its own folder (it does a relative `cd ..` to
+            # compute LIBRARY_DIR), so callers must `cd` there first. A
+            # symlink or a direct `cmd //c <full path>` call would run it
+            # from the caller's CWD instead, making `%cd%` resolve to the
+            # wrong directory and the JVM throw ClassNotFoundException.
             if [[ -f "${behaviorsearch_binary}" ]]; then
+              behaviorsearch_dir="$(dirname "${behaviorsearch_binary}")"
+              behaviorsearch_dir_win="$(cygpath -w "${behaviorsearch_dir}")"
+              behaviorsearch_win="$(cygpath -w "${behaviorsearch_binary}")"
+
               # Bash wrapper in System32 for bash callers.
-              printf '#!/bin/bash\ncmd //c "%s" "$@"\n' \
-                "$(cygpath -w "${behaviorsearch_binary}")" \
+              printf '#!/bin/bash\ncd "%s" && cmd //c "%s" "$@"\n' \
+                "${behaviorsearch_dir}" \
+                "${behaviorsearch_win}" \
                 > "C:/Windows/System32/behaviorsearch"
               chmod +x "C:/Windows/System32/behaviorsearch"
 
-              # `.bat` symlink in System32 for cmd callers.
-              cmd //c mklink \
-                "C:\Windows\System32\behaviorsearch.bat" \
-                "$(cygpath -w "${behaviorsearch_binary}")"
-
+              # `.bat` wrapper in System32 for cmd callers.
+              printf '@echo off\r\ncd /d "%s"\r\ncall "%s" %%*\r\n' \
+                "${behaviorsearch_dir_win}" \
+                "${behaviorsearch_win}" \
+                > "C:/Windows/System32/behaviorsearch.bat"
             fi
             ;;
         esac
