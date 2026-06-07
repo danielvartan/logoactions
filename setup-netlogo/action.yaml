@@ -13,7 +13,7 @@ inputs:
   version:
     description: |
       A single-quoted (!important!) character string indicating the NetLogo
-      version to use (e.g., `'7.0.3'`). Use `'release'` to get the latest
+      version to use (e.g., `'7.0.4'`). Use `'release'` to get the latest
       stable release. Only versions 6.4.0 and above are supported.
     default: 'release'
   cache:
@@ -384,6 +384,91 @@ runs:
         echo "${NETLOGO_HOME}" >> "${GITHUB_PATH}"
       shell: bash
 
+    - name: Fix BehaviorSearch headless script
+      run: |
+        # Fix BehaviorSearch headless script
+        # set -x
+
+        # NetLogo 6.4.0 ships stale headless scripts whose library directory
+        # points to NETLOGO_HOME directly instead of its `app`/`lib/app`
+        # subfolder, where the JARs actually live, causing a
+        # ClassNotFoundException at runtime. The patterns below only match
+        # that stale form, so patching is a no-op on versions that already
+        # point to the correct subfolder.
+
+        case ${RUNNER_OS} in
+          "Linux")
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              sudo sed -i \
+                's|LIBRARY_DIR="`pwd`"|LIBRARY_DIR="`pwd`/lib/app"|' \
+                "${behaviorsearch_binary}"
+            fi
+            ;;
+          "macOS")
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              # macOS ships BSD sed, which requires an explicit
+              # (here, empty) backup suffix for -i.
+              sudo sed -i '' \
+                's|LIBRARY_DIR="`pwd`"|LIBRARY_DIR="`pwd`/lib/app"|' \
+                "${behaviorsearch_binary}"
+            fi
+            ;;
+          "Windows")
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
+
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              # `cd %BSEARCH_DIR%` (plain `cd`, not `cd /d`) cannot
+              # switch drives on Windows -- it only updates the
+              # remembered directory for that drive, leaving the
+              # active drive/cwd unchanged. GitHub Actions' Windows
+              # runners invoke this script from the workspace on
+              # drive D: while NetLogo is installed on drive C:, so
+              # the script never actually reaches its own folder:
+              # every path computed downstream (LIBRARY_DIR, JARS,
+              # the classpath) is wrong, and the JVM throws
+              # ClassNotFoundException. `cd /d` switches both the
+              # drive and the directory, fixing this at the source.
+              sed -i \
+                's|cd %BSEARCH_DIR%|cd /d %BSEARCH_DIR%|' \
+                "${behaviorsearch_binary}"
+
+              # Matches `set LIBRARY_DIR=%cd%` only when `%cd%` is the
+              # last thing on the line (older versions, e.g. 6.4.0,
+              # point LIBRARY_DIR at NETLOGO_HOME itself, where there
+              # are no jars). Anchoring on end-of-line avoids touching
+              # the already-correct `%cd%\app` form shipped in newer
+              # versions (e.g. 7.0.4).
+              sed -i \
+                's|set LIBRARY_DIR=%cd%$|set LIBRARY_DIR=%cd%\\app|' \
+                "${behaviorsearch_binary}"
+
+              # All shipped versions gather jars from `.` (NETLOGO_HOME,
+              # the cwd after `cd ..`) but the actual jars -- including
+              # behaviorsearch.jar -- live in LIBRARY_DIR (NETLOGO_HOME
+              # \app), so the loop matches nothing and JARS stays empty,
+              # producing a broken classpath and ClassNotFoundException.
+              # `for %%f in (...)` treats quotes as literal pattern
+              # characters rather than grouping, so a quoted
+              # "%LIBRARY_DIR%\*.jar" can't be used to dodge the spaces
+              # in "Program Files" -- and an unquoted one gets split on
+              # those spaces into multiple bogus patterns. Instead,
+              # `cd /d` into LIBRARY_DIR (now resolvable now that the
+              # drive-switch fix above makes it correct) and enumerate
+              # the bare `*.jar` pattern there; the existing
+              # `%LIBRARY_DIR%\%%f` concatenation on the next line then
+              # yields the correct full path.
+              sed -i \
+                's|for %%f in (\.\\\*\.jar) do (|cd /d "%LIBRARY_DIR%"\nfor %%f in (*.jar) do (|' \
+                "${behaviorsearch_binary}"
+            fi
+            ;;
+        esac
+      shell: bash
+
     - name: Create symbolic links
       run: |
         # Create symbolic links
@@ -393,29 +478,107 @@ runs:
           "Linux")
             netlogo_binary="${NETLOGO_HOME}/bin/NetLogo"
 
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            if [[ -f "${netlogo_binary}" ]]; then
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            fi
+
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+
+            # `behaviorsearch_headless.sh` uses dirname `"$0"` to locate its
+            # JARs, so a symlink would make it navigate to the wrong directory.
+            # A wrapper script ensures $0 resolves to the real script path.
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
+                | sudo tee /usr/local/bin/behaviorsearch > /dev/null
+
+              sudo chmod +x /usr/local/bin/behaviorsearch
+              sudo ln -sf /usr/local/bin/behaviorsearch /usr/local/bin/BehaviorSearch
+            fi
             ;;
           "macOS")
             netlogo_binary="${NETLOGO_HOME}/NetLogo ${NETLOGO_VERSION}.app/Contents/MacOS/NetLogo ${NETLOGO_VERSION}"
 
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
-            sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            if [[ -f "${netlogo_binary}" ]]; then
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/NetLogo"
+              sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
+            fi
+
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
+
+            # Same wrapper pattern as Linux, minus the BehaviorSearch symlink:
+            # macOS's default filesystem (APFS) is case-insensitive, so
+            # "BehaviorSearch" and "behaviorsearch" already resolve to the
+            # same path. A symlink between them would make ln -sf overwrite
+            # the freshly created wrapper with a self-referential (broken)
+            # symlink.
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
+                | sudo tee /usr/local/bin/behaviorsearch > /dev/null
+
+              sudo chmod +x /usr/local/bin/behaviorsearch
+            fi
             ;;
           "Windows")
-            symlink_target=$(cygpath -w "${NETLOGO_HOME}/NetLogo.exe")
+            # Windows default filesystem is case-insensitive. Creating one
+            # link allows you to call either name from the CLI.
+            netlogo_binary="${NETLOGO_HOME}/NetLogo.exe"
 
-            # On Windows, creating one link allows you to call either name
-            # from the CLI.
-            cmd //c mklink \
-              "C:\Windows\System32\NetLogo.exe" \
-              "${symlink_target}"
+            if [[ -f "${netlogo_binary}" ]]; then
+              cmd //c mklink \
+                "C:\Windows\System32\NetLogo.exe" \
+                "$(cygpath -w "${netlogo_binary}")"
+            fi
+
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
+
+            # `behaviorsearch_headless.bat` locates its own folder via
+            # `%~dp0`, which resolves to the path used to invoke it. A
+            # symlink would make it resolve to the symlink's location
+            # (the same problem `dirname "$0"` caused on Linux/macOS), so
+            # both callers get a wrapper that invokes the real full path.
+            if [[ -f "${behaviorsearch_binary}" ]]; then
+              behaviorsearch_win="$(cygpath -w "${behaviorsearch_binary}")"
+
+              # Bash wrapper in System32 for bash callers.
+              printf '#!/bin/bash\ncmd //c "%s" "$@"\n' \
+                "${behaviorsearch_win}" \
+                > "C:/Windows/System32/behaviorsearch"
+              chmod +x "C:/Windows/System32/behaviorsearch"
+
+              # `.bat` wrapper in System32 for cmd callers.
+              printf '@echo off\r\ncall "%s" %%*\r\n' \
+                "${behaviorsearch_win}" \
+                > "C:/Windows/System32/behaviorsearch.bat"
+            fi
             ;;
         esac
+
+        if ! [[ -f "${netlogo_binary}" ]]; then
+          echo \
+            "Error: NetLogo binary not found at expected location."
+
+          exit 1
+        fi
+
+        if ! [[ -f "${behaviorsearch_binary}" ]]; then
+          echo \
+            "Error: BehaviorSearch binary not found at expected location."
+
+          exit 1
+        fi
       shell: bash
 
     - name: Test NetLogo installation
       run: |
         # Test NetLogo installation
+
         netlogo --headless --version
+      shell: bash
+
+    - name: Test BehaviorSearch installation
+      run: |
+        # Test BehaviorSearch installation
+
+        behaviorsearch --version
       shell: bash
