@@ -407,7 +407,7 @@ runs:
             fi
             ;;
           "macOS")
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
 
             if [[ -f "${behaviorsearch_binary}" ]]; then
               # macOS ships BSD sed, which requires an explicit
@@ -466,15 +466,19 @@ runs:
               sudo ln -sf "${netlogo_binary}" "/usr/local/bin/netlogo"
             fi
 
-            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.sh"
+            behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.command"
 
-            # Same wrapper pattern as Linux.
+            # Same wrapper pattern as Linux, minus the BehaviorSearch symlink:
+            # macOS's default filesystem (APFS) is case-insensitive, so
+            # "BehaviorSearch" and "behaviorsearch" already resolve to the
+            # same path. A symlink between them would make ln -sf overwrite
+            # the freshly created wrapper with a self-referential (broken)
+            # symlink.
             if [[ -f "${behaviorsearch_binary}" ]]; then
               printf '#!/bin/bash\nexec "%s" "$@"\n' "${behaviorsearch_binary}" \
                 | sudo tee /usr/local/bin/behaviorsearch > /dev/null
 
               sudo chmod +x /usr/local/bin/behaviorsearch
-              sudo ln -sf /usr/local/bin/behaviorsearch /usr/local/bin/BehaviorSearch
             fi
             ;;
           "Windows")
@@ -508,7 +512,7 @@ runs:
 
         if ! [[ -f "${netlogo_binary}" ]]; then
           echo \
-            "Error: NetLogo console binary not found at expected location."
+            "Error: NetLogo binary not found at expected location."
 
           exit 1
         fi
