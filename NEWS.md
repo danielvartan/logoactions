@@ -1,4 +1,4 @@
-# v1.4.2.9000 (development version)
+# v1.4.2 (2026-06-07)
 
 - The documentation was updated.
 - Other GitHub Actions, such as `checkout`, `cache`, and `upload-artifact`, were updated to their latest versions.
