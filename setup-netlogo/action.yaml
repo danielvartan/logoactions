@@ -442,6 +442,41 @@ runs:
               sed -i \
                 's|set LIBRARY_DIR=%cd%\([^\\]\)|set LIBRARY_DIR=%cd%\\app\1|' \
                 "${behaviorsearch_binary}"
+
+              # All shipped versions gather jars from `.` (NETLOGO_HOME,
+              # the cwd after `cd ..`) but the actual jars -- including
+              # behaviorsearch.jar -- live in LIBRARY_DIR (NETLOGO_HOME
+              # \app), so the loop matches nothing and JARS stays empty,
+              # producing a broken classpath and ClassNotFoundException.
+              # `for %%f in (...)` treats quotes as literal pattern
+              # characters rather than grouping, so a quoted
+              # "%LIBRARY_DIR%\*.jar" can't be used to dodge the spaces
+              # in "Program Files" -- and an unquoted one gets split on
+              # those spaces into multiple bogus patterns. Instead,
+              # `cd /d` into LIBRARY_DIR (now resolvable now that the
+              # drive-switch fix above makes it correct) and enumerate
+              # the bare `*.jar` pattern there; the existing
+              # `%LIBRARY_DIR%\%%f` concatenation on the next line then
+              # yields the correct full path.
+              sed -i \
+                's|for %%f in (\.\\\*\.jar) do (|cd /d "%LIBRARY_DIR%"\nfor %%f in (*.jar) do (|' \
+                "${behaviorsearch_binary}"
+
+              # TEMPORARY: turn on command echoing so the run log shows
+              # each command and its expanded form, to confirm the fix
+              # (or pinpoint the next issue if any remains).
+              sed -i \
+                's|@echo off|@echo on|' \
+                "${behaviorsearch_binary}"
+
+              echo "--- Patched behaviorsearch_headless.bat (relevant lines) ---"
+              grep -n -i \
+                -e "cd /d" \
+                -e "LIBRARY_DIR" \
+                -e "for %%f" \
+                -e "JARS" \
+                "${behaviorsearch_binary}"
+              echo "-------------------------------------------------------------"
             fi
             ;;
         esac
