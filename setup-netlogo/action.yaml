@@ -13,7 +13,7 @@ inputs:
   version:
     description: |
       A single-quoted (!important!) character string indicating the NetLogo
-      version to use (e.g., `'7.0.3'`). Use `'release'` to get the latest
+      version to use (e.g., `'7.0.4'`). Use `'release'` to get the latest
       stable release. Only versions 6.4.0 and above are supported.
     default: 'release'
   cache:

@@ -17,14 +17,12 @@
 
 Currently, the repository includes:
 
-- [`setup-netlogo`](#setup-netlogo-reference): Installs NetLogo on the runner machine
-- [`check-netlogo`](#check-netlogo-reference): Runs all BehaviorSpace experiments in a repository's NetLogo models to verify they execute without errors
+- [`setup-netlogo`](#setup-netlogo-reference): Installs NetLogo on the runner machine (with [BehaviorSearch](https://www.behaviorsearch.org/) support).
+- [`check-netlogo`](#check-netlogo-reference): Runs all BehaviorSpace experiments in a repository's NetLogo models to verify they execute without errors.
 
 Along with these actions, a series of [workflows examples](.github/workflows) are provided to demonstrate how to use the action in practice. See the [Usage](#usage) section below for more details.
 
 > If you find this project useful, please consider giving it a star! &nbsp; [![GitHub Repository Stars](https://img.shields.io/github/stars/danielvartan/logoactions)](https://github.com/danielvartan/logoactions/)
-
-> The continuous development of `LogoActions` depends on community support. If you can afford to do so, please consider becoming a sponsor. &nbsp; [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/danielvartan)
 
 ## Usage
 
@@ -263,20 +261,24 @@ This will make NetLogo available for use in subsequent steps.
 
 The action sets up a NetLogo environment by performing the following tasks:
 
-1. Download the specified NetLogo version
-2. Cache the installation (optional)
+1. Download and install the specified NetLogo version.
+2. Cache the installation (optional).
 3. Set environment variables:
-  - `NETLOGO_HOME`: Installation directory path
-  - `NETLOGO_CONSOLE`: Console executable path
-  - `NETLOGO_VERSION`: Installed version (e.g., `7.0.3`)
-4. Add `NETLOGO_HOME` to `PATH`
-5. Create `netlogo` and `NetLogo` symlinks
+  - `NETLOGO_HOME`: Installation directory path.
+  - `NETLOGO_CONSOLE`: Console executable path.
+  - `NETLOGO_VERSION`: Installed version (e.g., `7.0.4`).
+4. Add `NETLOGO_HOME` to `PATH`.
+5. Create `netlogo` and `NetLogo` symlinks pointing to `NetLogo_Console`.
+6. Create `behaviorsearch` and `BehaviorSearch` symlinks pointing to `behaviorsearch_headless.sh`, enabling the use of [BehaviorSearch](https://www.behaviorsearch.org/) in headless mode.
 
-After the action completes, you can run NetLogo commands in subsequent steps using `netlogo`:
+After the action completes, you can run NetLogo and BehaviorSearch commands in subsequent steps using `netlogo` and `behaviorsearch`:
 
 ```yaml
 - name: Test NetLogo
   run: netlogo --headless --version
+
+- name: Test BehaviorSearch
+  run: behaviorsearch --version
 ```
 
 You can view `setup-netlogo` in action on the repository's [actions page](https://github.com/danielvartan/logoactions/actions).
@@ -285,7 +287,7 @@ You can view `setup-netlogo` in action on the repository's [actions page](https:
 
 The following inputs are supported:
 
-- `version`: A single-quoted (!important!) character string indicating the NetLogo version to use (e.g., `'7.0.3'`). Use `'release'` to get the latest
+- `version`: A single-quoted (!important!) character string indicating the NetLogo version to use (e.g., `'7.0.4'`). Use `'release'` to get the latest
 stable release. Only versions 6.4.0 and above are supported (default: `'release'`).
 - `cache`: A single-quoted (!important!) boolean value indicating whether the NetLogo installation should be cached across runs (default: `'true'`).
 

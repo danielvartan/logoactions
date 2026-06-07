@@ -1,7 +1,8 @@
 # v1.4.2.9000 (development version)
 
-- `[setup-netlogo]` added [BehaviorSearch](https://www.behaviorsearch.org/) support.
-- `[setup-netlogo]` added [BehaviorSearch](https://www.behaviorsearch.org/) symlinks. You can now use it in headless mode calling `behaviorsearch`.
+- Updated documentation.
+- `[setup-netlogo]` now supports [BehaviorSearch](https://www.behaviorsearch.org/).
+- `[setup-netlogo]` now adds [BehaviorSearch](https://www.behaviorsearch.org/) symlinks, so you can run it in headless mode by calling `behaviorsearch`.
 
 # v1.4.1 (2026-05-12)
 
