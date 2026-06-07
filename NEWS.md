@@ -1,6 +1,7 @@
 # v1.4.2.9000 (development version)
 
-- Updated documentation.
+- The documentation was updated.
+- Other GitHub Actions, such as `checkout`, `cache`, and `upload-artifact`, were updated to their latest versions.
 - `[setup-netlogo]` now supports [BehaviorSearch](https://www.behaviorsearch.org/).
 - `[setup-netlogo]` now adds a `behaviorsearch` command (and a `BehaviorSearch` alias on Linux), so you can run it in headless mode by calling `behaviorsearch`.
 - `[setup-netlogo]` now uses `netlogo-headless.sh` instead of `NetLogo_Console` to run NetLogo in headless mode.

@@ -50,7 +50,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up NetLogo
         uses: danielvartan/logoactions/setup-netlogo@v1
@@ -83,7 +83,7 @@ jobs:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up NetLogo
         uses: danielvartan/logoactions/setup-netlogo@v1
@@ -119,7 +119,7 @@ jobs:
         shell: bash
 
       - name: Upload artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: experiments-output
           path: ${{ steps.artifacts-dir.outputs.path }}
@@ -153,7 +153,7 @@ jobs:
       pages: write
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up NetLogo
         uses: danielvartan/logoactions/setup-netlogo@v1
