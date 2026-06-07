@@ -437,6 +437,13 @@ runs:
                 's|for %%f in (\.\\\*\.jar) do (|for %%f in (%LIBRARY_DIR%\\*.jar) do (|' \
                 "${behaviorsearch_binary}"
 
+              # Enumerating from LIBRARY_DIR (above) makes %%f expand to
+              # each jar's full path already, so the LIBRARY_DIR\ prefix
+              # here would double up the path and break the classpath.
+              sed -i \
+                's|set JARS=%LIBRARY_DIR%\\%%f;!JARS!|set JARS=%%f;!JARS!|' \
+                "${behaviorsearch_binary}"
+
               echo "--- Patched behaviorsearch_headless.bat (relevant lines) ---"
               grep -n -i \
                 -e "LIBRARY_DIR" \
