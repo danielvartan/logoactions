@@ -436,11 +436,14 @@ runs:
                 's|cd %BSEARCH_DIR%|cd /d %BSEARCH_DIR%|' \
                 "${behaviorsearch_binary}"
 
-              # Matches `set LIBRARY_DIR=%cd%` only when not already
-              # followed by a backslash (i.e., not the already-correct
-              # `%cd%\app` form).
+              # Matches `set LIBRARY_DIR=%cd%` only when `%cd%` is the
+              # last thing on the line (older versions, e.g. 6.4.0,
+              # point LIBRARY_DIR at NETLOGO_HOME itself, where there
+              # are no jars). Anchoring on end-of-line avoids touching
+              # the already-correct `%cd%\app` form shipped in newer
+              # versions (e.g. 7.0.4).
               sed -i \
-                's|set LIBRARY_DIR=%cd%\([^\\]\)|set LIBRARY_DIR=%cd%\\app\1|' \
+                's|set LIBRARY_DIR=%cd%$|set LIBRARY_DIR=%cd%\\app|' \
                 "${behaviorsearch_binary}"
 
               # All shipped versions gather jars from `.` (NETLOGO_HOME,
