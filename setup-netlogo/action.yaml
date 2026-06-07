@@ -420,11 +420,21 @@ runs:
           "Windows")
             behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
 
-            # Matches `set LIBRARY_DIR=%cd%` only when not already followed
-            # by a backslash (i.e., not the already-correct `%cd%\app` form).
             if [[ -f "${behaviorsearch_binary}" ]]; then
+              # Matches `set LIBRARY_DIR=%cd%` only when not already
+              # followed by a backslash (i.e., not the already-correct
+              # `%cd%\app` form).
               sed -i \
                 's|set LIBRARY_DIR=%cd%\([^\\]\)|set LIBRARY_DIR=%cd%\\app\1|' \
+                "${behaviorsearch_binary}"
+
+              # All shipped versions gather jars from `.` (NETLOGO_HOME
+              # after `cd ..`) but build classpath entries from
+              # LIBRARY_DIR (NETLOGO_HOME\app), so the loop finds nothing
+              # and the JVM throws ClassNotFoundException. Make it
+              # enumerate from LIBRARY_DIR directly.
+              sed -i \
+                's|for %%f in (\.\\\*\.jar) do (|for %%f in (%LIBRARY_DIR%\\*.jar) do (|' \
                 "${behaviorsearch_binary}"
             fi
             ;;
@@ -482,8 +492,8 @@ runs:
             fi
             ;;
           "Windows")
-            # On Windows, creating one link allows you to call either name
-            # from the CLI.
+            # Windows default filesystem is case-insensitive. Creating one
+            # link allows you to call either name from the CLI.
             netlogo_binary="${NETLOGO_HOME}/NetLogo.exe"
 
             if [[ -f "${netlogo_binary}" ]]; then
@@ -494,27 +504,22 @@ runs:
 
             behaviorsearch_binary="${NETLOGO_HOME}/behaviorsearch/behaviorsearch_headless.bat"
 
-            # `behaviorsearch_headless.bat` assumes its working directory
-            # is already its own folder (it does a relative `cd ..` to
-            # compute LIBRARY_DIR), so callers must `cd` there first. A
-            # symlink or a direct `cmd //c <full path>` call would run it
-            # from the caller's CWD instead, making `%cd%` resolve to the
-            # wrong directory and the JVM throw ClassNotFoundException.
+            # `behaviorsearch_headless.bat` locates its own folder via
+            # `%~dp0`, which resolves to the path used to invoke it. A
+            # symlink would make it resolve to the symlink's location
+            # (the same problem `dirname "$0"` caused on Linux/macOS), so
+            # both callers get a wrapper that invokes the real full path.
             if [[ -f "${behaviorsearch_binary}" ]]; then
-              behaviorsearch_dir="$(dirname "${behaviorsearch_binary}")"
-              behaviorsearch_dir_win="$(cygpath -w "${behaviorsearch_dir}")"
               behaviorsearch_win="$(cygpath -w "${behaviorsearch_binary}")"
 
               # Bash wrapper in System32 for bash callers.
-              printf '#!/bin/bash\ncd "%s" && cmd //c "%s" "$@"\n' \
-                "${behaviorsearch_dir}" \
+              printf '#!/bin/bash\ncmd //c "%s" "$@"\n' \
                 "${behaviorsearch_win}" \
                 > "C:/Windows/System32/behaviorsearch"
               chmod +x "C:/Windows/System32/behaviorsearch"
 
               # `.bat` wrapper in System32 for cmd callers.
-              printf '@echo off\r\ncd /d "%s"\r\ncall "%s" %%*\r\n' \
-                "${behaviorsearch_dir_win}" \
+              printf '@echo off\r\ncall "%s" %%*\r\n' \
                 "${behaviorsearch_win}" \
                 > "C:/Windows/System32/behaviorsearch.bat"
             fi
