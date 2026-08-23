@@ -14,9 +14,9 @@
 *.qmd linguist-language=R
 *.yaml linguist-language=Shell
 
-images/* linguist-documentation
-docs/* linguist-documentation
-tests/* linguist-documentation
+images/** linguist-documentation
+docs/** linguist-documentation
+tests/** linguist-documentation
 
-extensions/* linguist-vendored
-models/* linguist-vendored
+extensions/** linguist-vendored
+models/** linguist-vendored
