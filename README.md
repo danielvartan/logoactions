@@ -46,6 +46,7 @@ jobs:
   check-netlogo:
     name: Check NetLogo models
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -79,6 +80,7 @@ jobs:
   run-experiments:
     name: Run experiments
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -146,6 +148,7 @@ jobs:
   run-logolink:
     runs-on: ubuntu-latest
     name: Run experiments
+    timeout-minutes: 60
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
@@ -226,7 +229,7 @@ jobs:
         shell: bash
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           clean: false
           branch: gh-pages

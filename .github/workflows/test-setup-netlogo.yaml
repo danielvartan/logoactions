@@ -1,6 +1,7 @@
 on:
   push:
-    branches: [main, master]
+    paths:
+      - setup-netlogo/**
 
 name: "setup-netlogo" # Do not change!
 permissions: read-all
@@ -19,6 +20,7 @@ jobs:
         cache: ['false', 'true']
     name: "${{ matrix.config.os }} (version: '${{ matrix.config.version }}') (cache: '${{ matrix.cache }}')"
     runs-on: ${{ matrix.config.os }}
+    timeout-minutes: 60
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:

@@ -1,6 +1,9 @@
 on:
   push:
-    branches: [main, master]
+    paths:
+      - models/**
+      - setup-netlogo/**
+      - test/**
 
 name: run-logolink.yaml
 permissions: read-all
@@ -9,6 +12,7 @@ jobs:
   run-logolink:
     name: Run experiments with Quarto and logolink
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     permissions:
@@ -94,7 +98,7 @@ jobs:
         working-directory: './tests/qmd'
 
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4.5.0
+        uses: JamesIves/github-pages-deploy-action@v4
         with:
           clean: false
           branch: gh-pages
